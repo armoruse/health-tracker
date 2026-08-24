@@ -1,4 +1,4 @@
-// BODY Apps Script - Auto-deployed via GitHub Actions
+// BODY Apps Script - Last Synced: 2026-08-24 13:51:35
 const SPREADSHEET_ID = '1p_x4wmHNx1fV-Y0C4Af2D86mBfqwxp0dOe58EiQ6cfQ';
 const SETTINGS_SHEET = 'Settings';
 const PHYSIQUE_SHEET = 'PhysiqueLog';
