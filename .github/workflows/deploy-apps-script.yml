@@ -29,9 +29,11 @@ jobs:
           mkdir -p ~/.clasp
           echo "$CLASPRC_JSON" > ~/.clasprc.json
           echo "$CLASPRC_JSON" > /home/runner/.clasprc.json
-          echo "$CLASPRC_JSON" > apps-script/.clasprc.json
+          echo "$CLASPRC_JSON" > .clasprc.json
 
       - name: Push to Apps Script
         working-directory: apps-script
+        env:
+          DEBUG: 'clasp*'
         run: |
-          clasp --auth ~/.clasprc.json push --force
+          clasp push --force
