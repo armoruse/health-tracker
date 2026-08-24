@@ -19,21 +19,9 @@ jobs:
         with:
           node-version: '20'
 
-      - name: Install clasp
-        run: npm install -g @google/clasp
-
-      - name: Write clasp credentials
+      - name: Deploy to Google Apps Script
+        working-directory: apps-script
         env:
           CLASPRC_JSON: ${{ secrets.CLASPRC_JSON }}
         run: |
-          mkdir -p ~/.clasp
-          echo "$CLASPRC_JSON" > ~/.clasprc.json
-          echo "$CLASPRC_JSON" > /home/runner/.clasprc.json
-          echo "$CLASPRC_JSON" > .clasprc.json
-
-      - name: Push to Apps Script
-        working-directory: apps-script
-        env:
-          DEBUG: 'clasp*'
-        run: |
-          clasp push --force
+          node deploy.mjs
