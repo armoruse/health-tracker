@@ -23,8 +23,15 @@ jobs:
         run: npm install -g @google/clasp
 
       - name: Write clasp credentials
-        run: echo '${{ secrets.CLASPRC_JSON }}' > ~/.clasprc.json
+        env:
+          CLASPRC_JSON: ${{ secrets.CLASPRC_JSON }}
+        run: |
+          mkdir -p ~/.clasp
+          echo "$CLASPRC_JSON" > ~/.clasprc.json
+          echo "$CLASPRC_JSON" > /home/runner/.clasprc.json
+          echo "$CLASPRC_JSON" > apps-script/.clasprc.json
 
       - name: Push to Apps Script
         working-directory: apps-script
-        run: clasp push --force
+        run: |
+          clasp --auth ~/.clasprc.json push --force

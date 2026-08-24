@@ -1,4 +1,2 @@
-**/**
-!appsscript.json
-!Code.js
-!*.js
+.git*
+node_modules*
