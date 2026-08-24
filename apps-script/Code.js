@@ -1,3 +1,4 @@
+// BODY Apps Script - Auto-deployed via GitHub Actions
 const SPREADSHEET_ID = '1p_x4wmHNx1fV-Y0C4Af2D86mBfqwxp0dOe58EiQ6cfQ';
 const SETTINGS_SHEET = 'Settings';
 const PHYSIQUE_SHEET = 'PhysiqueLog';
@@ -25,16 +26,15 @@ function doPost(e) {
       const min = Number(payload.goalBodyFatMin);
       const max = Number(payload.goalBodyFatMax);
       const desc = String(payload.goalDescription || '').trim();
-      if (!isFinite(weight) || weight < 40 || weight > 200) throw new Error('目標體重格式錯誤');
-      if (!isFinite(min) || !isFinite(max) || min < 3 || max > 60 || min > max) throw new Error('目標體脂格式錯誤');
-      setSetting_('goal_weight_kg', String(weight), '目前目標體重');
-      setSetting_('goal_body_fat_pct', min === max ? String(min) : `${min}~${max}`, '目前目標體脂範圍（純文字，避免被 Sheets 解析成日期）');
-      setSetting_('goal_description', desc, 'Dashboard 與 GPT 共用目標描述');
-      setSetting_('web_sync_updated_at', now_(), '最近一次網頁同步時間');
+      if (!isFinite(weight) || weight < 40 || weight > 200) throw new Error('?��?體�??��??�誤');
+      if (!isFinite(min) || !isFinite(max) || min < 3 || max > 60 || min > max) throw new Error('?��?體�??��??�誤');
+      setSetting_('goal_weight_kg', String(weight), '?��??��?體�?');
+      setSetting_('goal_body_fat_pct', min === max ? String(min) : `${min}~${max}`, '?��??��?體�?範�?（�??��?，避?�被 Sheets �???�日?��?');
+      setSetting_('goal_description', desc, 'Dashboard ??GPT ?�用?��??�述');
+      setSetting_('web_sync_updated_at', now_(), '?�近�?次網?��?步�???);
       return json_({ ok: true, state: getState_() });
     }
-    // V17 起照片不再由網站直接上傳。照片由 BODY「體態紀錄」對話框判讀後寫入 Drive / PhysiqueLog。
-    return json_({ ok: false, error: 'Unknown action' });
+    // V17 起照?��??�由網�??�接上傳?�照?�由 BODY?��??��??�」�?話�??��?後寫??Drive / PhysiqueLog??    return json_({ ok: false, error: 'Unknown action' });
   } catch (err) {
     return json_({ ok: false, error: String(err && err.message ? err.message : err) });
   }
@@ -146,7 +146,7 @@ function getState_() {
 }
 
 function getImage_(slot, view) {
-  if (!['current', 'target'].includes(slot) || !['front', 'side', 'back'].includes(view)) throw new Error('slot/view 錯誤');
+  if (!['current', 'target'].includes(slot) || !['front', 'side', 'back'].includes(view)) throw new Error('slot/view ?�誤');
   const id = getSetting_(`${slot}_${view}_file_id`);
   if (!id) return { ok: true, missing: true };
   const f = DriveApp.getFileById(id);
@@ -158,9 +158,9 @@ function latestAnalysisForView_(rows, view) {
   const matches = rows.filter(r => {
     const pv = String(r.PhotoView || '');
     if (/target/i.test(pv)) return false;
-    if (view === 'front') return /正面|current-front/i.test(pv);
-    if (view === 'side') return /側面|current-side/i.test(pv);
-    return /背面|current-back/i.test(pv);
+    if (view === 'front') return /�?��|current-front/i.test(pv);
+    if (view === 'side') return /?�面|current-side/i.test(pv);
+    return /?�面|current-back/i.test(pv);
   }).filter(r => String(r.Analysis || '').trim() || String(r.ComparisonComment || '').trim());
   return matches.slice(-1)[0] || null;
 }
@@ -169,9 +169,9 @@ function latestAnalysisForViewAt_(rows, view, date) {
   const matches = rows.filter(r => normDate_(r.Date) && normDate_(r.Date) <= date).filter(r => {
     const pv = String(r.PhotoView || '');
     if (/target/i.test(pv)) return false;
-    if (view === 'front') return /正面|current-front/i.test(pv);
-    if (view === 'side') return /側面|current-side/i.test(pv);
-    return /背面|current-back/i.test(pv);
+    if (view === 'front') return /�?��|current-front/i.test(pv);
+    if (view === 'side') return /?�面|current-side/i.test(pv);
+    return /?�面|current-back/i.test(pv);
   }).filter(r => String(r.Analysis || '').trim() || String(r.ComparisonComment || '').trim());
   return matches.slice(-1)[0] || null;
 }
@@ -184,7 +184,7 @@ function parseCircumference_(row) {
   };
   return {
     date: normDate_(row.Date), timestamp: row.Timestamp || '', weightKg: numberOrNull_(row.WeightKg), bodyFatPct: numberOrNull_(row.BodyFatPct),
-    neckCm: take('頸圍'), waistCm: take('腰圍'), chestCm: take('胸圍'), armCm: take('手臂圍'), hipCm: take('臀圍'), thighCm: take('大腿圍'),
+    neckCm: take('?��?'), waistCm: take('?��?'), chestCm: take('?��?'), armCm: take('?��???), hipCm: take('?�??), thighCm: take('大腿??),
     analysis: row.Analysis || '', comparisonComment: row.ComparisonComment || '', source: row.Source || ''
   };
 }
@@ -232,9 +232,7 @@ function parseBf_(s) {
   const raw = String(s == null ? '' : s).trim();
   let n = raw.match(/\d+(?:\.\d+)?/g) || [];
   let min = Number(n[0]), max = Number(n[1] || n[0]);
-  // 防禦舊資料曾被 Sheets 解析成日期，例如 12-16 -> 2026/12/16。
-  // 任何不合理體脂範圍都直接回到正式目標 15~16，避免年份被當成百分比。
-  if (!isFinite(min) || !isFinite(max) || min < 3 || max > 60 || min > max) return { min: 15, max: 16 };
+  // ?�禦?��??�曾�?Sheets �???�日?��?例�? 12-16 -> 2026/12/16??  // 任�?不�??��??��??�都?�接?�到�???��? 15~16，避?�年份被?��??��?比�?  if (!isFinite(min) || !isFinite(max) || min < 3 || max > 60 || min > max) return { min: 15, max: 16 };
   return { min, max };
 }
 function now_() { return Utilities.formatDate(new Date(), 'Asia/Taipei', 'yyyy-MM-dd HH:mm:ss'); }
