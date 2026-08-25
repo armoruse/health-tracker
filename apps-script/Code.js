@@ -1,7 +1,8 @@
-﻿const SPREADSHEET_ID = '1p_x4wmHNx1fV-Y0C4Af2D86mBfqwxp0dOe58EiQ6cfQ';
+const SPREADSHEET_ID = '1p_x4wmHNx1fV-Y0C4Af2D86mBfqwxp0dOe58EiQ6cfQ';
 const SETTINGS_SHEET = 'Settings';
 const PHYSIQUE_SHEET = 'PhysiqueLog';
 const SUMMARY_SHEET = 'DailySummary';
+const QUEUE_SHEET = 'XunjiQueue';
 
 function doGet(e) {
   try {
@@ -10,6 +11,7 @@ function doGet(e) {
     if (action === 'state') return json_(getState_());
     if (action === 'dashboard') return json_(getDashboard_(e.parameter.date || ''));
     if (action === 'image') return json_(getImage_(e.parameter.slot, e.parameter.view));
+    if (action === 'queue_pending') return json_(getQueuePending_(e.parameter.limit || 5));
     return json_({ ok: false, error: 'Unknown action' });
   } catch (err) {
     return json_({ ok: false, error: String(err && err.message ? err.message : err) });
@@ -33,11 +35,85 @@ function doPost(e) {
       setSetting_('web_sync_updated_at', now_(), '最近一次網頁同步時間');
       return json_({ ok: true, state: getState_() });
     }
+    if (action === 'queue_processing') {
+      return json_(markQueueProcessing_(payload));
+    }
+    if (action === 'queue_update') {
+      return json_(updateQueueItem_(payload));
+    }
     // V17 起照片不再由網站直接上傳。照片由 BODY「體態紀錄」對話框判讀後寫入 Drive / PhysiqueLog。
     return json_({ ok: false, error: 'Unknown action' });
   } catch (err) {
     return json_({ ok: false, error: String(err && err.message ? err.message : err) });
   }
+}
+
+function getQueuePending_(limit) {
+  const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
+  const sh = ss.getSheetByName(QUEUE_SHEET);
+  if (!sh) return { ok: true, count: 0, items: [], message: 'XunjiQueue sheet not found' };
+  const v = sh.getDataRange().getDisplayValues();
+  if (v.length <= 1) return { ok: true, count: 0, items: [] };
+
+  const maxCount = Math.min(Number(limit) || 5, 20);
+  const items = [];
+  for (let i = 1; i < v.length; i++) {
+    const status = String(v[i][6] || '').trim().toLowerCase();
+    if (status === 'pending') {
+      items.push({
+        rowIndex: i + 1,
+        createdAt: v[i][0] || '',
+        action: String(v[i][1] || '').trim(),
+        targetDate: String(v[i][2] || '').trim(),
+        targetId: String(v[i][3] || '').trim(),
+        payloadJson: v[i][4] || '',
+        confirmed: v[i][5] || '',
+        status: v[i][6] || '',
+        source: v[i][12] || '',
+        note: v[i][13] || ''
+      });
+      if (items.length >= maxCount) break;
+    }
+  }
+  return { ok: true, count: items.length, items: items };
+}
+
+function markQueueProcessing_(payload) {
+  const rowIndex = Number(payload.rowIndex);
+  if (!rowIndex || rowIndex < 2) throw new Error('Invalid rowIndex');
+  const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
+  const sh = ss.getSheetByName(QUEUE_SHEET);
+  if (!sh) throw new Error('XunjiQueue sheet not found');
+  sh.getRange(rowIndex, 7).setValue('processing');
+  return { ok: true, rowIndex: rowIndex, status: 'processing' };
+}
+
+function updateQueueItem_(payload) {
+  const rowIndex = Number(payload.rowIndex);
+  if (!rowIndex || rowIndex < 2) throw new Error('Invalid rowIndex');
+  const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
+  const sh = ss.getSheetByName(QUEUE_SHEET);
+  if (!sh) throw new Error('XunjiQueue sheet not found');
+
+  const status = payload.status || 'success';
+  const processedAt = payload.processedAt || now_();
+  const resultJson = typeof payload.resultJson === 'object' ? JSON.stringify(payload.resultJson) : String(payload.resultJson || '');
+  const errorMessage = String(payload.errorMessage || '');
+  const templateId = String(payload.templateId || '');
+  const cursorVal = String(payload.cursor || '');
+
+  // Col G (7): Status, Col H (8): ProcessedAt, Col I (9): ResultJson,
+  // Col J (10): ErrorMessage, Col K (11): TemplateId, Col L (12): Cursor
+  sh.getRange(rowIndex, 7, 1, 6).setValues([[
+    status,
+    processedAt,
+    resultJson,
+    errorMessage,
+    templateId,
+    cursorVal
+  ]]);
+
+  return { ok: true, rowIndex: rowIndex, status: status };
 }
 
 function getDashboard_(requestedDate) {
@@ -232,8 +308,6 @@ function parseBf_(s) {
   const raw = String(s == null ? '' : s).trim();
   let n = raw.match(/\d+(?:\.\d+)?/g) || [];
   let min = Number(n[0]), max = Number(n[1] || n[0]);
-  // 防禦舊資料曾被 Sheets 解析成日期，例如 12-16 -> 2026/12/16。
-  // 任何不合理體脂範圍都直接回到正式目標 15~16，避免年份被當成百分比。
   if (!isFinite(min) || !isFinite(max) || min < 3 || max > 60 || min > max) return { min: 15, max: 16 };
   return { min, max };
 }
