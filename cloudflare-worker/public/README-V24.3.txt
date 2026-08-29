@@ -1,0 +1,1 @@
+BODY GO! V24.3 — exact requested layout: desktop physique composition left + measurements right; coach cards auto-height; readable text floor 12pt (16px).

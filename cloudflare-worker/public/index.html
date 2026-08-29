@@ -1,0 +1,547 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#f8fafc">
+<title>BODY GO!</title>
+<link rel="icon" href="/assets/favicon-v2.png">
+<style>
+:root{--bg:#f8fafc;--card:#fff;--ink:#14181f;--muted:#707b8d;--line:#e6ebf1;--blue:#1677ff;--blueSoft:#eef7ff;--green:#12a37f;--amber:#f4a629;--pink:#e75b7a;--red:#b42318;--shadow:0 1px 2px rgba(15,23,42,.035)}
+*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:var(--bg);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","PingFang TC","Noto Sans TC",sans-serif;-webkit-font-smoothing:antialiased}button,input{font:inherit}button{cursor:pointer}main{max-width:1180px;margin:0 auto;padding:26px 22px 52px}.top{display:flex;justify-content:space-between;align-items:center;gap:16px}.brand{display:flex;align-items:center;gap:15px}.brandIcon{width:66px;height:66px;border-radius:17px;object-fit:cover;display:block}.brand h1{font-size:34px;letter-spacing:-.03em;margin:0}.brand p{margin:3px 0 0;font-size:12px;font-weight:700;color:var(--muted)}.syncControl{display:inline-flex;align-items:center;gap:7px;border:1px solid #d0e9fa;background:#f0f9ff;color:#1176b7;border-radius:999px;padding:9px 13px;font-size:13px;font-weight:800;transition:background .15s ease,transform .08s ease,opacity .15s ease}.syncControl:hover{background:#e6f6ff}.syncControl:active{transform:scale(.97)}.syncControl:disabled{cursor:default;opacity:.72}.syncIcon{font-size:17px;line-height:1;display:inline-block}.syncControl.loading .syncIcon{animation:spin .9s linear infinite}@keyframes spin{to{transform:rotate(360deg)}}.tabs{display:flex;gap:8px;align-items:center;margin:18px 0 0;flex-wrap:wrap}.tabs button,.tabs a{border:1px solid var(--line);background:#fff;color:#586477;border-radius:13px;padding:9px 14px;font-weight:700;font-size:13px;text-decoration:none}.tabs button.active{background:#14181f;color:#fff;border-color:#14181f}.tabs .recordBtn{margin-left:auto;background:var(--blueSoft);border-color:#cfe6fb;color:#0b72b6}.dateNav{margin-top:14px;background:rgba(255,255,255,.97);border:1px solid var(--line);border-radius:20px;padding:9px 96px;display:block;position:sticky;top:8px;z-index:100;box-shadow:0 8px 24px rgba(30,45,65,.09);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}.dateCore{display:grid;grid-template-columns:42px minmax(180px,360px) 42px;justify-content:center;align-items:center;gap:7px;margin:0 auto}.arrow{width:38px;height:38px;border-radius:50%;border:1px solid var(--line);background:#fff;color:#586477;display:inline-flex;align-items:center;justify-content:center;padding:0;font-size:0;line-height:1}.arrow::before{content:'';display:block;width:9px;height:9px;border-left:2px solid currentColor;border-bottom:2px solid currentColor;transform:rotate(45deg);transform-origin:center}#nextDay.arrow::before{transform:rotate(225deg)}.arrow:disabled{cursor:default}.latestBtn{position:absolute;right:10px;top:50%;transform:translateY(-50%)}.dateNav .latestBtn.hidden{display:block!important;visibility:hidden!important;pointer-events:none}.dateMain{border:0;background:transparent;text-align:center;border-radius:12px;padding:5px 12px}.dateMain:hover{background:#f6f8fb}.dateMain strong{display:block;font-size:18px;letter-spacing:-.02em}.datePicker{position:absolute;opacity:0;pointer-events:none}.latestBtn{border-radius:999px;padding:9px 13px;font-size:12px;font-weight:800;background:#14181f;color:white;border:1px solid #14181f;white-space:nowrap}.overviewStatus{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:14px}.page{display:none}.page.active{display:block}.card{margin-top:16px;background:var(--card);border:1px solid var(--line);border-radius:24px;padding:22px;box-shadow:var(--shadow)}.head{display:flex;justify-content:space-between;gap:12px;align-items:flex-start;margin-bottom:14px}.head h2,.head h3{margin:0}.head h2{font-size:23px}.head h3{font-size:18px}.meta{font-size:12px;color:var(--muted);line-height:1.5}.grid4{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}.grid2{display:grid;grid-template-columns:repeat(2,1fr);gap:16px}.metric{border:1px solid var(--line);border-radius:18px;padding:15px;background:#fcfdff}.metric .k{font-size:12px;color:var(--muted);font-weight:700}.metric .v{font-size:30px;font-weight:800;letter-spacing:-.02em;margin-top:6px}.metric .u{font-size:13px;font-weight:700}.metric .s{font-size:10px;color:var(--muted);margin-top:4px}.panel{border:1px solid var(--line);border-radius:20px;padding:18px;background:#fff}.nutritionGoals{display:grid;gap:17px}.nutriHead{display:grid;grid-template-columns:70px 1fr 54px 86px;gap:8px;align-items:baseline}.nutriName{font-size:13px;font-weight:800}.nutriVal{font-size:12px;color:var(--muted)}.nutriVal strong{font-size:20px;color:var(--ink)}.nutriPct{text-align:right;font-size:12px;font-weight:800}.nutriDelta{text-align:right;background:#f4f7fa;border-radius:9px;padding:4px 6px;font-size:11px;font-weight:800;color:#606c7d}.track{position:relative;height:14px;background:#e9eef4;border-radius:999px;margin-top:10px;overflow:visible}.fill{height:14px;border-radius:999px}.goalLine{position:absolute;left:83.333%;top:-6px;height:26px;width:3px;background:#111827;border-radius:3px;transform:translateX(-1px)}.axis{position:relative;height:14px;margin-top:5px;font-size:9px;color:#a0a9b6}.axis span{position:absolute;transform:translateX(-50%)}.axis .z{left:0;transform:none}.axis .g{left:83.333%;font-weight:800;color:#657184}.axis .m{right:0;transform:none}.bodyList{border:1px solid var(--line);border-radius:16px;overflow:hidden}.bodyRow{display:grid;grid-template-columns:150px 1fr;gap:12px;padding:13px 16px;border-bottom:1px solid var(--line);font-size:13px}.bodyRow:last-child{border-bottom:0}.bodyRow b{font-weight:800}.foodList,.workList{display:grid;gap:8px}.entry{border:1px solid var(--line);background:#fcfdff;border-radius:16px;padding:12px 14px;display:grid;grid-template-columns:82px 1fr auto;gap:10px;align-items:start}.entry b{font-size:13px}.entry .desc{font-size:12px;line-height:1.45}.entry .small{font-size:10px;color:var(--muted);margin-top:3px}.entry .time{font-size:11px;color:var(--muted)}.coachHero{font-size:15px;line-height:1.7;font-weight:700;margin:6px 0 14px}.coachHero{border:1px solid var(--line);border-radius:16px;padding:16px;background:#fbfcfe}.coachHero b{font-size:13px}.coachHero p{margin:8px 0 0;font-size:13px;line-height:1.7;color:#394150}.coachGrid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.coachGrid2x2{grid-template-columns:1fr 1fr}.coachBox{border:1px solid var(--line);border-radius:16px;padding:14px}.coachBox b{font-size:13px}.coachBox p{margin:7px 0 0;font-size:12px;color:var(--muted);line-height:1.72;white-space:pre-line}.coachBox.physiqueCoach{background:#f8fbff;border-color:#dbe9f7}.coachBox.psych{background:#f8f6ff;border-color:#e5defb}.coachFreshness{display:inline-flex;align-items:center;gap:6px;border-radius:999px;padding:5px 9px;font-size:10px;font-weight:800;background:#f4f7fa;color:#667386}.coachFreshness.stale{background:#fff4e8;color:#a85b00;border:1px solid #f4d4aa}.coachConclusion{margin-top:10px;border-radius:16px;padding:14px 16px;background:#111318;color:#fff}.coachConclusion b{font-size:13px}.coachConclusion p{margin:7px 0 0;font-size:13px;line-height:1.65;color:#eef2f7}.compare{display:grid;grid-template-columns:1fr 1fr;gap:16px}.photoSlot{border:1px solid var(--line);border-radius:20px;background:#fcfdff;padding:18px;text-align:center}.imageStage{height:520px;display:flex;align-items:center;justify-content:center;overflow:hidden}.imageStage img{width:100%;height:100%;object-fit:contain;object-position:center}.viewTabs{display:flex;gap:8px;margin-bottom:12px}.viewTabs button{border:1px solid var(--line);background:#fff;border-radius:999px;padding:8px 12px;color:#667386}.viewTabs button.active{background:#14181f;color:#fff;border-color:#14181f}.measureGrid{display:grid;grid-template-columns:repeat(6,1fr);gap:8px}.measure{border:1px solid var(--line);border-radius:15px;padding:12px}.measure .k{font-size:10px;color:var(--muted)}.measure .v{font-size:20px;font-weight:800;margin-top:4px}.measure .target{font-size:10px;color:#637083;margin-top:5px;font-weight:700;line-height:1.25}.measure .target strong{color:#2467d6;font-weight:800}.analysis{display:grid;gap:10px}.analysisBox{border:1px solid var(--line);border-radius:16px;padding:14px}.analysisBox p{margin:6px 0 0;font-size:12px;line-height:1.75;color:var(--muted)}.historyTop{display:grid;grid-template-columns:360px 1fr;gap:16px}.calendar{border:1px solid var(--line);border-radius:18px;padding:16px;background:#fcfdff}.calHead{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}.calGrid{display:grid;grid-template-columns:repeat(7,1fr);gap:6px}.dow,.day{height:34px;display:flex;align-items:center;justify-content:center;font-size:11px}.dow{color:var(--muted);font-weight:800}.day{border:0;background:transparent;border-radius:11px;color:#667386;position:relative;cursor:pointer;transition:transform .08s ease,background .12s ease}.day:active{transform:scale(.92)}.day.has{background:#eef7ff;color:#0b72b6;font-weight:800}.day.has:after{content:"";width:5px;height:5px;border-radius:50%;background:#0b72b6;position:absolute;right:5px;bottom:5px}.day.active{background:#14181f;color:#fff}.day.active:after{background:#fff}.quickDates{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}.quickDate{border:1px solid var(--line);background:#fff;border-radius:15px;padding:12px;text-align:left}.quickDate.active{background:#14181f;color:#fff}.quickDate b{display:block;font-size:13px}.quickDate span{display:block;font-size:10px;color:var(--muted);margin-top:3px}.quickDate.active span{color:#dbe1e8}.trendCard{border:1px solid var(--line);border-radius:18px;padding:16px;background:#fcfdff;margin-top:12px}.trendLegend{display:flex;gap:16px;flex-wrap:wrap;font-size:11px;color:var(--muted);margin-bottom:10px}.dot{width:8px;height:8px;border-radius:50%;display:inline-block;margin-right:5px}.trendSvg{width:100%;height:210px;display:block}.empty{text-align:center;color:var(--muted);padding:28px 12px;border:1px dashed var(--line);border-radius:16px}.footer{text-align:center;color:var(--muted);font-size:11px;padding:26px 0 4px}.hidden{display:none!important}
+@media(max-width:850px){.grid4{grid-template-columns:repeat(2,1fr)}.grid2,.compare,.historyTop{grid-template-columns:1fr}.measureGrid{grid-template-columns:repeat(3,1fr)}.tabs .recordBtn{margin-left:auto}.imageStage{height:430px}}
+@media(max-width:520px){main{padding:18px 12px 40px}.brandIcon{width:56px;height:56px}.brand h1{font-size:28px}.syncControl{padding:8px 10px}.tabs{gap:6px}.tabs button,.tabs a{padding:8px 10px}.tabs .recordBtn{margin-left:0}.dateNav{padding:8px 8px 9px}.dateCore{grid-template-columns:38px minmax(0,1fr) 38px;gap:6px;width:100%}.arrow{width:34px;height:34px}.arrow::before{width:8px;height:8px}.dateMain{padding:4px 6px}.dateMain strong{font-size:16px}.latestBtn{position:absolute;right:48px;top:50%;transform:translateY(-50%);margin:0;padding:6px 8px;font-size:9px;min-height:27px;z-index:3}.dateNav .latestBtn.hidden{display:block!important;visibility:hidden!important;pointer-events:none}.grid4{grid-template-columns:1fr 1fr;gap:8px}.metric .v{font-size:25px}.measureGrid{grid-template-columns:repeat(2,1fr)}.coachGrid{grid-template-columns:1fr}.nutriHead{grid-template-columns:62px 1fr 45px 76px}.quickDates{grid-template-columns:repeat(2,1fr)}}
+
+/* BODY GO! V23 — coach readability, category scoring, data-update timestamp */
+.syncControl{background:#fff;border-color:var(--line);color:#536174;padding:9px 13px}.syncControl:hover{background:#f7f9fc}
+.coachCard{padding:24px}.coachHeader{margin-bottom:16px}.coachHeader .head{margin-bottom:0}.coachGrid{gap:16px}.coachBox{position:relative;min-height:230px;padding:22px 22px 20px;border-radius:22px;overflow:hidden}.coachBox .coachTitleRow{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:14px}.coachBox .coachTitle{font-size:23px;font-weight:850;letter-spacing:-.02em}.coachBox .coachScore{font-size:30px;font-weight:900;letter-spacing:-.035em;white-space:nowrap}.coachBox .coachScore small{font-size:16px;font-weight:800}.coachBox p{margin:0;font-size:16px;line-height:1.72;color:#263244;white-space:pre-line}.coachBox.trainingCoach{background:#f3faf7;border-color:#cfe7dc}.coachBox.trainingCoach .coachTitle,.coachBox.trainingCoach .coachScore{color:#08764f}.coachBox.nutritionCoach{background:#fff8f1;border-color:#f6d9bd}.coachBox.nutritionCoach .coachTitle,.coachBox.nutritionCoach .coachScore{color:#c65312}.coachBox.physiqueCoach{background:#f3f8ff;border-color:#cfe0f7}.coachBox.physiqueCoach .coachTitle,.coachBox.physiqueCoach .coachScore{color:#185bb8}.coachBox.psych{background:#f8f5ff;border-color:#e2d8f7}.coachBox.psych .coachTitle,.coachBox.psych .coachScore{color:#6841a5}.coachConclusion{margin-top:16px;border-radius:22px;padding:22px 24px;background:linear-gradient(135deg,#0b2f5b,#0f4175);color:#fff}.coachConclusionTop{display:flex;align-items:flex-start;justify-content:space-between;gap:18px}.coachConclusion h3{margin:0;font-size:24px}.overallScore{display:flex;align-items:baseline;gap:8px}.overallScore strong{font-size:44px;line-height:1;font-weight:900;letter-spacing:-.05em}.overallScore span{font-size:17px;font-weight:800;color:#cfe0f5}.coachRating{font-size:21px;font-weight:850;color:#eaf3ff;margin-top:4px}.coachConclusion p{margin:14px 0 0;font-size:16px;line-height:1.75;color:#eef5ff;white-space:pre-line}.scoreFoot{margin-top:10px;text-align:right;font-size:10px;color:#8793a3}.coachFreshness{margin-top:6px}.analysisBox p{white-space:pre-line}.analysisBox .emptyHint{color:#8a95a6}.latestAnalysisHint{font-size:11px;color:#7d8999;margin-top:5px}.overviewUpdated{font-weight:750}.overviewStatus{display:none}
+@media(max-width:850px){.coachBox{min-height:0}.coachConclusionTop{flex-direction:column}.scoreFoot{text-align:left}}
+@media(max-width:520px){.coachCard{padding:18px}.coachBox{padding:18px}.coachBox .coachTitle{font-size:20px}.coachBox .coachScore{font-size:26px}.coachBox p{font-size:15px}.coachConclusion{padding:19px}.overallScore strong{font-size:38px}}
+
+
+.energyBalance{margin-top:18px;padding-top:16px;border-top:1px solid var(--line)}.energyTitle{display:flex;align-items:center;justify-content:space-between;gap:8px;font-size:13px;font-weight:850;margin-bottom:10px}.estimateTag{font-size:10px;color:#667386;background:#f3f6f9;border-radius:999px;padding:4px 7px}.energyGrid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.energyCell{border:1px solid var(--line);border-radius:14px;padding:11px 10px;background:#fbfcfe}.energyCell .ek{font-size:10px;color:var(--muted);font-weight:750}.energyCell .ev{font-size:20px;font-weight:900;margin-top:4px;letter-spacing:-.02em}.energyCell.deficit .ev{color:#159447}.energyCell.surplus .ev{color:#c2414a}.energyStatus{margin-top:9px;font-size:10px;color:#657184;line-height:1.55}.energyStatus strong{color:#1f2937}@media(max-width:520px){.energyGrid{grid-template-columns:1fr}.energyCell{display:flex;align-items:center;justify-content:space-between}.energyCell .ev{margin-top:0;font-size:18px}}
+
+
+/* V23.3 mobile fidelity: keep full coaching/body detail; only reflow layout */
+@media(max-width:520px){
+  .coachBox p,.analysisBox p,.entry .desc{display:block!important;max-height:none!important;overflow:visible!important;-webkit-line-clamp:unset!important;line-clamp:unset!important;}
+  .coachBox p{font-size:15px;line-height:1.82;}
+  .coachConclusion p{font-size:15px;line-height:1.82;}
+  .analysisBox p{font-size:13px;line-height:1.82;}
+  .entry .desc{font-size:12px;line-height:1.58;}
+  .card{padding:18px;}
+  .panel{padding:16px;}
+  .bodyRow{grid-template-columns:108px 1fr;padding:12px 13px;}
+  .imageStage{height:360px;}
+}
+
+
+/* V23.5 mobile score tiles: four compact icon cards + detail drawer */
+@media(max-width:520px){
+  .coachCard{padding:14px 12px 16px}.coachCard .coachHeader{margin-bottom:10px}.coachCard .coachHeader .head h2{font-size:20px}
+  .coachGrid,.coachGrid2x2{display:grid!important;grid-template-columns:repeat(4,minmax(0,1fr))!important;gap:7px!important}
+  .coachBox{min-height:112px!important;padding:10px 5px 9px!important;border-radius:15px!important;cursor:pointer;text-align:center;overflow:visible!important;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;transition:transform .08s ease,box-shadow .15s ease}
+  .coachBox:active{transform:scale(.98)}.coachIcon{display:flex;width:34px;height:34px;border-radius:12px;align-items:center;justify-content:center;margin:0 auto 5px;background:rgba(255,255,255,.78);box-shadow:inset 0 0 0 1px rgba(15,23,42,.05)}
+  .coachIcon svg{width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:2.3;stroke-linecap:round;stroke-linejoin:round}
+  .coachBox.trainingCoach .coachIcon{color:#08764f}.coachBox.nutritionCoach .coachIcon{color:#2563b8}.coachBox.physiqueCoach .coachIcon{color:#d97706}.coachBox.psych .coachIcon{color:#6841a5}
+  .coachBox .coachTitleRow{display:flex;flex-direction:column;align-items:center;justify-content:flex-start;gap:1px;margin:0!important;padding:0!important;width:100%}.coachBox .coachTitleRow::after{display:none!important}
+  .coachBox .coachTitle{font-size:10px!important;line-height:1.15;white-space:nowrap;font-weight:850}.coachBox .coachScore{font-size:21px!important;line-height:1.05;margin-top:3px;font-weight:900}.coachBox .coachScore small{font-size:8px!important;font-weight:800}
+  .coachBox p{display:none!important}.coachBox::after{content:'';display:block;margin-top:5px;font-size:8px;font-weight:750;color:#8b96a6}
+  .coachBox.nutritionCoach{background:#f5f8ff;border-color:#d7e3f8}.coachBox.nutritionCoach .coachTitle,.coachBox.nutritionCoach .coachScore{color:#2563b8}.coachBox.physiqueCoach{background:#fff8ee;border-color:#f7dfba}.coachBox.physiqueCoach .coachTitle,.coachBox.physiqueCoach .coachScore{color:#d97706}
+  .mobileCoachDetail{grid-column:1/-1;border:1px solid var(--line);border-radius:16px;background:#fff;padding:13px 14px;text-align:left;margin-top:2px}.mobileCoachDetailHead{display:flex;align-items:center;justify-content:space-between;gap:10px;font-size:14px;font-weight:850}.mobileCoachDetailHead button{border:0;background:#f3f6f9;color:#667386;width:27px;height:27px;border-radius:50%;font-size:20px;line-height:1}.mobileCoachDetail p{margin:8px 0 0;font-size:13px;line-height:1.7;color:#334155;white-space:pre-line}
+  .coachConclusion{margin-top:10px;padding:15px 16px;border-radius:18px;cursor:pointer;position:relative}.coachConclusionTop{flex-direction:row!important;align-items:center!important;gap:10px}.coachConclusion h3{font-size:18px}.coachRating{font-size:14px;margin-top:2px}.overallScore strong{font-size:34px}.overallScore span{font-size:13px}
+  .coachConclusion p{font-size:13px;line-height:1.62;margin:10px 0 0;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;line-clamp:2;overflow:hidden;max-height:3.4em;white-space:pre-line}.coachConclusion.mobile-expanded p{display:block;-webkit-line-clamp:unset;line-clamp:unset;max-height:none;overflow:visible}.coachConclusion::after{content:'';display:block;margin-top:8px;font-size:10px;font-weight:750;color:#b9cbe0}.coachConclusion.mobile-expanded::after{content:''}
+  .scoreFoot{display:none}.nutritionPanelFull{padding:16px}
+}
+
+
+
+/* V23.6: execution-score model, same-line latest button, swipe transition */
+.page.dateShiftNext{animation:dateShiftNext .20s ease both}.page.dateShiftPrev{animation:dateShiftPrev .20s ease both}
+@keyframes dateShiftNext{from{opacity:.72;transform:translateX(22px)}to{opacity:1;transform:translateX(0)}}
+@keyframes dateShiftPrev{from{opacity:.72;transform:translateX(-22px)}to{opacity:1;transform:translateX(0)}}
+.executionContext{margin-top:12px;border-top:1px solid rgba(255,255,255,.18);padding-top:12px}.executionContext b{display:block;font-size:12px;margin-top:7px;color:#fff}.executionContext span{display:block;font-size:12px;line-height:1.6;color:#dce9f7;margin-top:3px;white-space:pre-line}
+@media(max-width:520px){
+ .coachGrid,.coachGrid2x2{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:9px!important}
+ .coachBox{min-height:124px!important}
+ .coachBox .coachTitle{font-size:12px!important}.coachBox .coachScore{font-size:24px!important}.coachBox .coachScore small{font-size:9px!important}
+ .latestBtn{max-width:68px;overflow:hidden;text-overflow:ellipsis}
+}
+
+
+/* V23.7 — desktop detailed, mobile compact */
+.coachBox p{font-size:13.5px;line-height:1.78;color:#394150;white-space:pre-line}
+.coachConclusion{background:#0d3767;padding:20px 22px}
+.coachConclusion p{font-size:14px;line-height:1.78;color:#eef5fb;white-space:pre-line;margin-top:12px}
+.coachConclusionShort{display:none}
+.coachTitleRow{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.coachScore{font-weight:900;white-space:nowrap}
+@media(max-width:520px){
+  .coachGrid,.coachGrid2x2{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:8px!important}
+  .coachBox{min-height:108px!important;padding:12px 10px!important;text-align:center!important;display:flex!important;flex-direction:column;align-items:center;justify-content:center;position:relative}
+  .coachBox .coachIcon{width:34px;height:34px;margin:0 0 6px!important}
+  .coachBox .coachIcon svg{width:28px;height:28px}
+  .coachBox .coachTitleRow{display:flex!important;flex-direction:column!important;gap:2px!important;align-items:center!important}
+  .coachBox .coachTitle{font-size:13px!important;line-height:1.2!important}
+  .coachBox .coachScore{font-size:21px!important;line-height:1.15!important}
+  .coachBox .coachScore small{font-size:10px!important}
+  .coachBox>p{display:none!important}
+  .coachBox::after{content:'›';position:absolute;right:8px;top:50%;transform:translateY(-50%);font-size:18px;opacity:.38;font-weight:800}
+  .mobileCoachDetail{grid-column:1/-1!important;margin-top:2px!important;padding:15px 16px!important}
+  .mobileCoachDetail p{font-size:13.5px!important;line-height:1.75!important}
+  .coachConclusion{padding:15px 16px!important;min-height:118px;cursor:pointer;position:relative}
+  .coachConclusionTop h3{font-size:16px!important}
+  .coachRating{font-size:11px!important}
+  .overallScore strong{font-size:30px!important}
+  .overallScore span{font-size:11px!important}
+  .coachConclusionShort{display:block;font-size:13px;line-height:1.6;color:#f3f7fc;font-weight:750;margin-top:10px;padding-right:20px}
+  .coachConclusion>p{display:none!important;font-size:13.5px!important;line-height:1.76!important;margin-top:12px!important}
+  .coachConclusion.mobile-expanded .coachConclusionShort{display:none!important}
+  .coachConclusion.mobile-expanded>p{display:block!important}
+  .coachConclusion::after{content:'展開';position:absolute;right:16px;bottom:13px;font-size:10px;color:#bcd0e6;font-weight:800}
+  .coachConclusion.mobile-expanded::after{content:''}
+}
+
+
+/* V23.8 — mobile compact-but-informative cards; expansion happens in place, no instructional labels */
+@media(max-width:520px){
+  .coachCard{padding:16px 14px 18px}
+  .coachGrid,.coachGrid2x2{grid-template-columns:1fr 1fr!important;gap:10px!important}
+  .coachBox{min-height:152px!important;padding:16px 15px 14px!important;border-radius:18px!important;text-align:left!important;align-items:stretch!important;justify-content:flex-start!important;overflow:hidden!important;transition:max-height .24s ease,box-shadow .18s ease,transform .08s ease,padding .18s ease!important}
+  .coachBox:active{transform:scale(.99)}
+  .coachIcon{display:none!important}
+  .coachBox .coachTitleRow{display:flex!important;flex-direction:row!important;align-items:flex-start!important;justify-content:space-between!important;gap:8px!important;margin:0 0 10px!important;width:100%!important}
+  .coachBox .coachTitle{font-size:15px!important;line-height:1.25!important;white-space:normal!important;font-weight:850!important}
+  .coachBox .coachScore{font-size:25px!important;line-height:1!important;margin:0!important;font-weight:900!important;white-space:nowrap!important}
+  .coachBox .coachScore small{font-size:10px!important;font-weight:800!important}
+  .coachBox p{display:-webkit-box!important;-webkit-box-orient:vertical!important;-webkit-line-clamp:3!important;line-clamp:3!important;overflow:hidden!important;max-height:5.1em!important;margin:0!important;font-size:12.5px!important;line-height:1.68!important;color:#374151!important;white-space:pre-line!important}
+  .coachBox.mobile-expanded{grid-column:1/-1!important;min-height:0!important;padding:18px 17px 17px!important;box-shadow:0 8px 24px rgba(31,41,55,.08)!important}
+  .coachBox.mobile-expanded p{display:block!important;-webkit-line-clamp:unset!important;line-clamp:unset!important;max-height:none!important;overflow:visible!important;font-size:14px!important;line-height:1.75!important}
+  .coachBox::after{content:none!important;display:none!important}
+  .coachConclusion{margin-top:12px!important;padding:17px 17px 16px!important;border-radius:19px!important;cursor:pointer!important}
+  .coachConclusionTop{flex-direction:row!important;align-items:center!important;justify-content:space-between!important;gap:10px!important}
+  .coachConclusion h3{font-size:19px!important}
+  .coachRating{font-size:14px!important;margin-top:2px!important}
+  .overallScore strong{font-size:36px!important}.overallScore span{font-size:13px!important}
+  .coachConclusionShort{display:none!important}
+  .coachConclusion p{display:-webkit-box!important;-webkit-box-orient:vertical!important;-webkit-line-clamp:4!important;line-clamp:4!important;overflow:hidden!important;max-height:6.8em!important;margin:12px 0 0!important;font-size:13px!important;line-height:1.7!important;white-space:pre-line!important}
+  .coachConclusion.mobile-expanded p{display:block!important;-webkit-line-clamp:unset!important;line-clamp:unset!important;max-height:none!important;overflow:visible!important;font-size:14px!important;line-height:1.78!important}
+  .coachConclusion::after{content:none!important;display:none!important}
+  .scoreFoot{display:none!important}
+  .latestBtn{right:45px!important;max-width:72px!important;padding:6px 8px!important;font-size:9px!important}
+  #page-physique>.card:first-child{margin-top:16px!important}
+}
+
+
+/* V23.9 — pre-production UI polish */
+.card{box-shadow:0 2px 8px rgba(15,23,42,.045)}
+.energyCell.deficit{background:#f2fbf7;border-color:#bfe4d1}.energyCell.deficit .ek{color:#34745b}
+.coachBox{transition:transform .10s ease,box-shadow .18s ease,border-color .18s ease}.coachBox:hover{box-shadow:0 7px 20px rgba(15,23,42,.055)}
+.coachConclusion{box-shadow:0 10px 28px rgba(13,55,103,.16)}
+@media(min-width:521px){
+  .coachGrid{gap:18px}.coachBox{padding:24px;min-height:250px}.coachBox p{font-size:14px;line-height:1.82}.coachConclusion{padding:24px 26px}.coachConclusion p{font-size:14.5px;line-height:1.82;max-width:1040px}
+}
+@media(max-width:520px){
+  .dateNav{display:grid!important;grid-template-columns:minmax(0,1fr) 66px;align-items:center;gap:5px;padding:7px 8px!important;min-height:50px}
+  .dateCore{grid-column:1;width:100%!important;grid-template-columns:34px minmax(0,1fr) 34px!important;gap:4px!important}
+  .arrow{width:32px!important;height:32px!important}.dateMain strong{font-size:15px!important}
+  .latestBtn{position:static!important;grid-column:2;right:auto!important;top:auto!important;transform:none!important;width:64px!important;max-width:64px!important;height:30px!important;min-height:30px!important;padding:4px 6px!important;font-size:9px!important;justify-self:end}
+  .dateNav .latestBtn.hidden{display:block!important;visibility:hidden!important;pointer-events:none!important}
+  .card{border-radius:20px;padding:17px;box-shadow:0 2px 7px rgba(15,23,42,.04)}
+  .nutritionPanelFull{padding:15px!important}
+  .nutritionGoals{gap:15px}.nutriHead{grid-template-columns:58px minmax(0,1fr) 42px 68px!important;gap:5px!important}.nutriVal{white-space:nowrap}.nutriVal strong{font-size:18px}.nutriDelta{padding:4px 4px;font-size:9.5px}
+  .energyBalance{margin-top:15px;padding-top:14px}.energyGrid{grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:6px!important}.energyCell{display:block!important;text-align:center;padding:10px 5px!important}.energyCell .ek{font-size:9px!important;white-space:nowrap}.energyCell .ev{font-size:16px!important;margin-top:4px!important;white-space:nowrap}.energyStatus{font-size:9.5px;line-height:1.55}
+  .coachCard{padding:15px 13px 17px!important}.coachCard .coachHeader{margin-bottom:9px}.coachCard .coachHeader .head h2{font-size:20px}
+  .coachGrid,.coachGrid2x2{gap:9px!important}.coachBox{min-height:154px!important;padding:15px 14px 14px!important;border-radius:18px!important;position:relative!important}
+  .coachBox .coachTitle{font-size:14px!important}.coachBox .coachScore{font-size:24px!important}.coachBox p{-webkit-line-clamp:3!important;line-clamp:3!important;max-height:5.1em!important;font-size:12.3px!important;line-height:1.67!important;padding-right:8px}
+  .coachBox::before{content:'';position:absolute;right:12px;bottom:11px;width:7px;height:7px;border-right:1.5px solid currentColor;border-bottom:1.5px solid currentColor;transform:rotate(45deg);opacity:.28;transition:transform .18s ease}
+  .coachBox.mobile-expanded::before{transform:rotate(225deg);bottom:9px}.coachBox.mobile-expanded{padding:17px 16px 20px!important}.coachBox.mobile-expanded p{font-size:13.5px!important;line-height:1.76!important;padding-right:0}
+  .coachConclusion{padding:17px 17px 18px!important;border-radius:19px!important;position:relative!important}.coachConclusion h3{font-size:18px!important}.coachRating{font-size:13px!important}.overallScore strong{font-size:35px!important}.overallScore span{font-size:12px!important}
+  .coachConclusion p{-webkit-line-clamp:3!important;line-clamp:3!important;max-height:5.25em!important;font-size:12.8px!important;line-height:1.73!important;padding-right:8px}.coachConclusion::before{content:'';position:absolute;right:16px;bottom:13px;width:8px;height:8px;border-right:1.5px solid #dce9f7;border-bottom:1.5px solid #dce9f7;transform:rotate(45deg);opacity:.55;transition:transform .18s ease}.coachConclusion.mobile-expanded::before{transform:rotate(225deg);bottom:10px}.coachConclusion.mobile-expanded p{font-size:13.6px!important;line-height:1.78!important;padding-right:0}
+  #page-physique>.card:first-child{margin-top:14px!important}
+}
+
+
+/* V23.10 — final visual polish before production */
+.coachIcon{display:none!important}
+.coachConclusion{background:#fff;color:#172033;border:1px solid #dfe6ef;box-shadow:0 7px 22px rgba(15,23,42,.055);overflow:hidden;padding:22px 24px 24px}
+.coachConclusionTop{background:#0d3767;margin:-22px -24px 0;padding:20px 24px;border-radius:21px 21px 0 0}
+.coachConclusion h3{color:#fff}.coachRating{color:#dceafe}.overallScore strong{color:#fff}.overallScore span{color:#c9d9eb}
+.coachConclusion p{color:#344054;margin-top:18px}
+.energyCell.deficit{box-shadow:0 3px 12px rgba(18,163,127,.10)}
+.energyCell.deficit .ev{font-size:22px;font-weight:900;color:#16805f}
+@media(max-width:520px){
+  .dateNav{display:block!important;padding:7px 8px!important;min-height:48px!important;position:sticky!important}
+  .dateCore{width:100%!important;grid-template-columns:32px minmax(0,1fr) 32px!important;gap:5px!important;margin:0!important}
+  .latestBtn{position:absolute!important;right:43px!important;top:50%!important;transform:translateY(-50%)!important;width:43px!important;max-width:43px!important;height:25px!important;min-height:25px!important;padding:3px 4px!important;font-size:8px!important;border-color:#d8dee8!important;background:#f4f6f9!important;color:#5b6677!important}
+  .dateMain strong{font-size:14px!important}.arrow{width:31px!important;height:31px!important}
+  .card{margin-top:12px!important;padding:15px!important}.nutritionPanelFull{padding:13px!important}
+  .nutritionGoals{gap:13px!important}.energyBalance{margin-top:13px!important;padding-top:12px!important}
+  .energyGrid{gap:5px!important}.energyCell{padding:8px 4px!important}.energyCell .ev{font-size:15px!important}.energyCell.deficit .ev{font-size:17px!important}
+  .coachCard{padding:14px 12px 15px!important}.coachCard .coachHeader{margin-bottom:7px!important}.coachGrid,.coachGrid2x2{gap:8px!important}
+  .coachBox{min-height:145px!important;padding:14px 13px 13px 16px!important;background:#fff!important;border-color:#e2e8f0!important;border-width:1px!important;box-shadow:none!important}
+  .coachBox::after{content:'';position:absolute;left:0;top:11px;bottom:11px;width:3px;border-radius:0 4px 4px 0;background:currentColor;opacity:.72}
+  .coachBox.nutritionCoach{color:#c65312!important;background:#fffaf6!important}.coachBox.trainingCoach{color:#08764f!important;background:#f8fcfa!important}
+  .coachBox .coachTitle{font-size:13.5px!important}.coachBox .coachScore{font-size:23px!important}.coachBox p{font-size:12px!important;line-height:1.62!important;-webkit-line-clamp:2!important;line-clamp:2!important;max-height:3.3em!important;color:#3c4656!important}
+  .coachBox::before{right:11px!important;bottom:10px!important;opacity:.22!important}.coachBox.mobile-expanded{padding:16px 15px 18px 18px!important;background:#fff!important}.coachBox.mobile-expanded p{font-size:13.2px!important;line-height:1.73!important;color:#344054!important}
+  .coachConclusion{padding:0 15px 16px!important;border-radius:19px!important;background:#fff!important;color:#172033!important;border:1px solid #dfe6ef!important;box-shadow:0 4px 14px rgba(15,23,42,.05)!important}
+  .coachConclusionTop{margin:0 -15px!important;padding:14px 15px!important;border-radius:18px 18px 0 0!important;background:#0d3767!important}
+  .coachConclusion h3{font-size:17px!important;color:#fff!important}.coachRating{font-size:12px!important;color:#dceafe!important}.overallScore strong{font-size:32px!important;color:#fff!important}.overallScore span{font-size:11px!important;color:#c9d9eb!important}
+  .coachConclusion p{margin:13px 0 0!important;color:#344054!important;font-size:12.5px!important;line-height:1.68!important;-webkit-line-clamp:3!important;line-clamp:3!important;max-height:5.1em!important;padding-right:8px!important}
+  .coachConclusion::before{border-color:#6e7d90!important;opacity:.4!important;right:14px!important;bottom:12px!important}.coachConclusion.mobile-expanded p{font-size:13.4px!important;line-height:1.75!important;color:#344054!important;padding-right:0!important}
+  #page-overview>.card:first-child{margin-top:12px!important}
+}
+
+
+/* V24.3 compact dashboard + stock-style trends */
+.overviewTopGrid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:16px;margin-top:16px}
+.overviewTopGrid .card{margin-top:0;padding:18px}
+.compactNutrition .nutritionGoals{gap:12px}
+.compactNutrition .nutriHead{grid-template-columns:58px 1fr 46px 78px;gap:7px}
+.compactNutrition .nutriVal strong{font-size:17px}.compactNutrition .track{height:10px;margin-top:7px}.compactNutrition .fill{height:10px}.compactNutrition .goalLine{top:-5px;height:20px}.compactNutrition .axis{height:9px;margin-top:3px}.compactNutrition .head{margin-bottom:10px}
+.energyPanel{height:100%;display:flex;flex-direction:column}.energyPanel .energyBalance{margin-top:0;border:0;padding:0;background:transparent}.energyPanel .energyTitle{font-size:18px}.energyPanel .energyGrid{grid-template-columns:1fr 1fr;gap:10px;margin-top:14px}.energyPanel .energyCell{padding:13px 14px;border:1px solid var(--line);border-radius:15px;background:#fbfcfe}.energyPanel #energyBalanceCell{grid-column:1/-1;background:#f3fbf7;border-color:#cce8d8;padding:18px}.energyPanel #energyBalanceCell .ev{font-size:34px;color:#16844f}.energyPanel .energyStatus{margin-top:auto;padding-top:13px;border-top:1px solid var(--line);font-size:11px;line-height:1.55}
+.coachCard{padding:18px}.coachCard .head{margin-bottom:10px}.coachBox{padding:14px 16px}.coachBox p{line-height:1.62}.coachConclusion{margin-top:10px}
+#page-physique .compare .photoSlot:first-child .imageStage{background:#fff}.photoModeBadge{display:inline-flex;align-items:center;border:1px solid var(--line);border-radius:999px;padding:5px 9px;font-size:10px;color:var(--muted);font-weight:800;margin-top:8px}
+.historyShell{margin-top:16px}.historySummaryCards{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:14px}.trendSummary{border:1px solid var(--line);border-radius:18px;background:#fff;padding:16px 18px;min-height:104px}.trendSummary .k{font-size:12px;color:var(--muted);font-weight:800}.trendSummary .v{font-size:28px;font-weight:850;margin-top:7px;letter-spacing:-.02em}.trendSummary .sub{font-size:11px;color:var(--muted);margin-top:5px}.trendSummary.good .v{color:#16844f}.trendSummary.warn .v{color:#d15555}
+.stockTrendCard{border:1px solid var(--line);border-radius:22px;background:#fff;padding:18px;box-shadow:var(--shadow)}.trendToolbar{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:12px}.trendScale{display:inline-flex;border:1px solid var(--line);border-radius:12px;overflow:hidden;background:#f8fafc}.trendScale button{border:0;border-right:1px solid var(--line);padding:8px 14px;background:transparent;color:#657184;font-size:12px;font-weight:800}.trendScale button:last-child{border-right:0}.trendScale button.active{background:#0d3767;color:#fff}.stockLegend{display:flex;gap:16px;align-items:center;font-size:11px;color:#667386}.stockChartWrap{position:relative;border-radius:16px;overflow:hidden}.stockSvg{width:100%;height:360px;display:block;touch-action:none}.trendTooltip{position:absolute;display:none;pointer-events:none;background:#142238;color:#fff;border-radius:10px;padding:9px 10px;font-size:11px;line-height:1.6;box-shadow:0 8px 22px rgba(14,31,53,.25);z-index:5}.trendBrushWrap{position:relative;margin-top:6px;border-radius:12px;background:#f7f9fc;padding:4px 0}.trendBrush{width:100%;height:72px;display:block;touch-action:none;cursor:grab}.trendBrush.dragging{cursor:grabbing}.brushHint{font-size:10px;color:#8b96a6;margin-top:4px;text-align:right}.trendEmpty{padding:70px 10px;text-align:center;color:var(--muted)}
+@media(max-width:760px){.overviewTopGrid{grid-template-columns:1fr}.energyPanel .energyGrid{grid-template-columns:repeat(3,1fr)}.energyPanel #energyBalanceCell{grid-column:auto}.energyPanel #energyBalanceCell .ev{font-size:24px}.historySummaryCards{grid-template-columns:1fr 1fr 1fr}.trendSummary{padding:12px}.trendSummary .v{font-size:22px}.stockTrendCard{padding:12px}.trendToolbar{align-items:flex-start;flex-direction:column}.trendScale{width:100%}.trendScale button{flex:1;padding:8px 6px}.stockSvg{height:300px}}
+@media(max-width:520px){.overviewTopGrid{gap:10px;margin-top:10px}.overviewTopGrid .card{padding:13px}.compactNutrition .nutritionGoals{gap:9px}.compactNutrition .nutriHead{grid-template-columns:46px 1fr 42px 70px}.compactNutrition .nutriVal strong{font-size:15px}.compactNutrition .nutriName{font-size:12px}.energyPanel .energyGrid{grid-template-columns:1fr 1fr}.energyPanel #energyBalanceCell{grid-column:1/-1}.historySummaryCards{gap:7px}.trendSummary{padding:10px 9px;min-height:86px}.trendSummary .k{font-size:10px}.trendSummary .v{font-size:19px}.trendSummary .sub{font-size:9px}.stockLegend{gap:10px}.stockSvg{height:270px}.trendBrush{height:62px}}
+
+/* V24.3 Compact UI polish */
+#physiquePage .card:has(#bodyList){padding:16px 18px 18px}
+#physiquePage .card:has(#bodyList)>.head{margin-bottom:8px}
+#physiquePage .bodyList{border-radius:14px}
+#physiquePage .bodyRow{grid-template-columns:150px 1fr;padding:8px 14px;min-height:36px;align-items:center;line-height:1.25}
+#physiquePage .bodyRow b,#physiquePage .bodyRow span{font-size:12.5px}
+#physiquePage .card:has(#bodyList)>.head[style]{margin-top:12px!important;margin-bottom:8px}
+#physiquePage .measureGrid{gap:7px}
+#physiquePage .measure{padding:9px 11px;border-radius:13px;min-height:62px}
+#physiquePage .measure .k{font-size:9.5px}
+#physiquePage .measure .v{font-size:18px;margin-top:2px;line-height:1.1}
+#physiquePage .measure .v small{font-size:11px}
+.coachCard{padding:16px 18px 17px}
+.coachCard .head{margin-bottom:8px}
+.coachGrid,.coachGrid2x2{align-items:start}
+.coachBox{padding:12px 15px;min-height:0!important;height:auto!important}
+.coachBox p{margin-top:6px;line-height:1.48}
+.coachConclusion{margin-top:8px}
+.coachConclusion p{margin:8px 0 0;line-height:1.42;white-space:pre-line}
+.coachConclusionShort{line-height:1.4}
+@media(max-width:520px){
+  #physiquePage .card:has(#bodyList){padding:14px 13px 15px!important}
+  #physiquePage .bodyRow{grid-template-columns:88px 1fr;padding:8px 11px!important;min-height:34px}
+  #physiquePage .measureGrid{grid-template-columns:repeat(3,1fr)!important;gap:6px!important}
+  #physiquePage .measure{padding:9px 9px!important;min-height:58px!important}
+  #physiquePage .measure .v{font-size:17px!important}
+  .coachCard{padding:14px 12px 14px!important}
+  .coachBox{min-height:0!important;height:auto!important;padding:12px 12px 12px 15px!important}
+  .coachBox p{line-height:1.46!important;margin-top:5px!important}
+  .coachConclusion{padding-bottom:12px!important}
+  .coachConclusion p{line-height:1.48!important;margin-top:9px!important}
+}
+
+/* V24.3 exact layout — user requested */
+.physiqueDataGrid{display:grid;grid-template-columns:minmax(0,.92fr) minmax(0,1.08fr);gap:14px;align-items:start}
+.physiqueDataGrid>.card{margin-top:16px}
+.physiqueCompositionCard,.physiqueMeasureCard{padding:18px 20px}
+.physiqueCompositionCard .head,.physiqueMeasureCard .head{margin-bottom:10px}
+.physiqueCompositionCard .head h2,.physiqueMeasureCard .head h2{font-size:24px}
+.physiqueCompositionCard .meta,.physiqueMeasureCard .meta{font-size:16px;line-height:1.45}
+.physiqueCompositionCard .bodyRow{grid-template-columns:1fr auto;gap:18px;padding:10px 14px;font-size:16px;line-height:1.35}
+.physiqueCompositionCard .bodyRow span{font-size:16px;font-weight:650;text-align:right}
+.physiqueMeasureCard .measureGrid{grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.physiqueMeasureCard .measure{padding:14px 14px;border-radius:16px;min-height:92px;display:flex;flex-direction:column;justify-content:center}
+.physiqueMeasureCard .measure .k{font-size:16px;line-height:1.3}
+.physiqueMeasureCard .measure .v{font-size:28px;line-height:1.15;margin-top:6px}
+.physiqueMeasureCard .measure small{font-size:16px}
+.coachCard .coachBox{min-height:0!important;height:auto!important}
+.coachCard .coachBox p{font-size:16px!important;line-height:1.72!important;white-space:pre-line!important}
+.coachCard .coachTitle{font-size:20px!important}
+.coachCard .coachScore{font-size:28px!important}
+.coachCard .coachScore small{font-size:16px!important}
+.coachCard .meta,.coachFreshness{font-size:16px!important}
+.coachConclusion p{font-size:16px!important;line-height:1.72!important;white-space:pre-line!important;margin-top:10px!important}
+.coachConclusion h3{font-size:22px!important}.coachRating{font-size:18px!important}.overallScore span{font-size:16px!important}
+@media(max-width:850px){.physiqueDataGrid{grid-template-columns:1fr}.physiqueMeasureCard .measureGrid{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media(max-width:520px){
+  .physiqueDataGrid{grid-template-columns:1fr;gap:0}
+  .physiqueCompositionCard,.physiqueMeasureCard{padding:16px 14px!important}
+  .physiqueCompositionCard .meta,.physiqueMeasureCard .meta{font-size:16px!important}
+  .physiqueCompositionCard .bodyRow{font-size:16px!important;padding:10px 12px!important}
+  .physiqueMeasureCard .measureGrid{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:8px!important}
+  .physiqueMeasureCard .measure{min-height:84px;padding:12px!important}
+  .physiqueMeasureCard .measure .k{font-size:16px!important}.physiqueMeasureCard .measure .v{font-size:25px!important}.physiqueMeasureCard .measure small{font-size:16px!important}
+  .coachCard .coachBox p{font-size:16px!important;line-height:1.72!important;max-height:none!important;-webkit-line-clamp:unset!important;line-clamp:unset!important;display:block!important}
+  .coachConclusion p{font-size:16px!important;line-height:1.72!important;max-height:none!important;-webkit-line-clamp:unset!important;line-clamp:unset!important;display:block!important}
+  .coachConclusionShort{display:none!important}
+}
+
+/* V24.3 — exact requested density: desktop composition left, measurements right; readable >=12pt */
+@media(min-width:851px){
+  .physiqueDataGrid{grid-template-columns:minmax(0,1fr) minmax(0,1fr)!important;gap:16px!important;align-items:stretch!important}
+  .physiqueCompositionCard,.physiqueMeasureCard{margin-top:16px!important;padding:18px 20px!important}
+  .physiqueCompositionCard .head,.physiqueMeasureCard .head{margin-bottom:10px!important}
+  .physiqueCompositionCard .head h2,.physiqueMeasureCard .head h2{font-size:23px!important}
+  .physiqueCompositionCard .meta,.physiqueMeasureCard .meta{font-size:16px!important;line-height:1.45!important}
+  .physiqueCompositionCard .bodyList{border-radius:14px!important}
+  .physiqueCompositionCard .bodyRow{grid-template-columns:150px 1fr!important;padding:9px 14px!important;min-height:38px!important;line-height:1.35!important}
+  .physiqueCompositionCard .bodyRow b,.physiqueCompositionCard .bodyRow span{font-size:16px!important}
+  .physiqueMeasureCard .measureGrid{grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:10px!important}
+  .physiqueMeasureCard .measure{min-height:92px!important;padding:14px 15px!important;display:flex!important;flex-direction:column!important;justify-content:center!important}
+  .physiqueMeasureCard .measure .k{font-size:16px!important;line-height:1.25!important}
+  .physiqueMeasureCard .measure .v{font-size:27px!important;line-height:1.18!important;margin-top:7px!important}
+  .physiqueMeasureCard .measure .v small{font-size:16px!important}
+  .coachGrid{gap:14px!important}
+  .coachBox{min-height:0!important;padding:20px 22px!important}
+  .coachBox .coachTitle{font-size:18px!important}.coachBox .coachScore{font-size:28px!important}.coachBox .coachScore small{font-size:16px!important}
+  .coachBox p{font-size:16px!important;line-height:1.72!important;margin-top:10px!important;white-space:pre-line!important}
+  .coachConclusion{padding:0 22px 22px!important}
+  .coachConclusionTop{margin:0 -22px!important;padding:18px 22px!important}
+  .coachConclusion p{font-size:16px!important;line-height:1.72!important;margin-top:12px!important;white-space:pre-line!important}
+}
+@media(max-width:850px){
+  .physiqueDataGrid{grid-template-columns:1fr!important;gap:10px!important}
+  .physiqueCompositionCard,.physiqueMeasureCard{padding:16px!important}
+  .physiqueCompositionCard .meta,.physiqueMeasureCard .meta{font-size:16px!important}
+  .physiqueCompositionCard .bodyRow{grid-template-columns:100px 1fr!important;padding:9px 11px!important;min-height:38px!important}
+  .physiqueCompositionCard .bodyRow b,.physiqueCompositionCard .bodyRow span{font-size:16px!important}
+  .physiqueMeasureCard .measureGrid{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:8px!important}
+  .physiqueMeasureCard .measure{min-height:76px!important;padding:11px 12px!important}
+  .physiqueMeasureCard .measure .k{font-size:16px!important}
+  .physiqueMeasureCard .measure .v{font-size:24px!important;margin-top:5px!important}
+  .physiqueMeasureCard .measure .v small{font-size:16px!important}
+  .coachBox .coachTitle{font-size:16px!important}.coachBox .coachScore{font-size:25px!important}.coachBox .coachScore small{font-size:16px!important}
+  .coachBox p,.coachConclusion p{font-size:16px!important;line-height:1.7!important}
+}
+
+
+/* V24.4 — preserve coach total layout; only tighten its text leading. Keep measurement icons. */
+.measureTop{display:flex;align-items:center;gap:10px}
+.measureIcon{width:30px;height:30px;border-radius:9px;background:#eef5ff;color:#1769d2;display:inline-flex;align-items:center;justify-content:center;flex:0 0 30px}
+.measureIcon svg{width:22px;height:22px;display:block;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.physiqueMeasureCard .measure .k{font-size:16px!important;color:#4b5563!important;font-weight:750!important}
+.physiqueMeasureCard .measure .v{padding-left:40px}
+/* Restore the existing total-review card geometry from before V24.3. */
+.coachConclusion{padding:22px 24px 24px!important}
+.coachConclusionTop{margin:-22px -24px 0!important;padding:20px 24px!important}
+.coachConclusion p{font-size:16px!important;line-height:1.32!important;margin-top:6px!important;white-space:pre-line!important}
+@media(max-width:850px){
+  .coachConclusion p{line-height:1.32!important}
+  .physiqueMeasureCard .measure .v{padding-left:40px}
+}
+@media(max-width:520px){
+  .measureIcon{width:28px;height:28px;flex-basis:28px}.measureIcon svg{width:20px;height:20px}
+  .physiqueMeasureCard .measure .v{padding-left:38px}
+  .coachConclusion p{line-height:1.32!important}
+}
+
+</style>
+<link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon-v2.png">
+<link rel="manifest" href="/manifest.webmanifest">
+<meta name="theme-color" content="#111318">
+</head>
+<body>
+<main>
+<header class="top"><div class="brand"><img class="brandIcon" src="/assets/body-go-icon-v2.png" alt="BODY GO!"><div><h1>BODY GO!</h1><p>體態管理</p></div></div><button class="syncControl" id="syncControl" type="button" aria-label="重新整理目前日期資料"><span class="syncIcon" aria-hidden="true">↻</span><span id="syncBadge">更新 —</span></button></header>
+<nav class="tabs"><button class="active" data-tab="overview">總覽</button><button data-tab="physique">體態</button><button data-tab="history">趨勢</button></nav>
+<section class="dateNav"><div class="dateCore"><button class="arrow" id="prevDay" aria-label="前一天">‹</button><button class="dateMain" id="dateMain" aria-label="選擇日期"><strong id="selectedDateLabel">—</strong></button><button class="arrow" id="nextDay" aria-label="後一天">›</button></div><button class="latestBtn hidden" id="latestDate">回到最新</button><input class="datePicker" id="datePicker" type="date"></section>
+
+<section class="page active" id="page-overview">
+ <div class="hidden"><span id="overviewMeta"></span><span id="overviewUpdated"></span><div id="summaryGrid"></div></div>
+ <div class="overviewTopGrid"><div class="card compactNutrition"><div class="head"><h3>營養達標統計</h3><div class="meta" id="nutritionMeta">—</div></div><div class="nutritionGoals" id="nutritionGoals"></div></div><div class="card energyPanel"><div class="energyBalance"><div class="energyTitle"><span>今日能量平衡</span><span class="estimateTag">預估</span></div><div class="energyGrid"><div class="energyCell"><div class="ek">攝取熱量</div><div class="ev" id="energyIntake">—</div></div><div class="energyCell"><div class="ek">預估總消耗</div><div class="ev" id="energyTdee">—</div></div><div class="energyCell" id="energyBalanceCell"><div class="ek">預估熱量赤字</div><div class="ev" id="energyDeficit">—</div></div></div><div class="energyStatus" id="energyStatus">依 BMR、日常活動與已記錄運動估算；看 7 日趨勢，不追求單日赤字越大越好。</div></div></div></div>
+ <div class="card"><div class="grid2"><div class="panel"><div class="head"><h3>飲食明細</h3><div class="meta" id="foodCount">—</div></div><div class="foodList" id="foodList"></div></div><div class="panel"><div class="head"><h3>運動紀錄</h3><div class="meta" id="workoutCount">—</div></div><div class="workList" id="workList"></div></div></div></div>
+ <div class="card coachCard"><div class="coachHeader"><div class="head"><div><h2>教練評價</h2><div class="meta" id="coachDate">—</div></div><div style="text-align:right"><span class="coachFreshness hidden" id="coachFreshness">教練評價待更新</span></div></div></div><div class="coachGrid coachGrid2x2"><div class="coachBox nutritionCoach" tabindex="0" role="button"><span class="coachIcon" aria-hidden="true"><svg viewBox="0 0 32 32"><path d="M9 5v9M13 5v9M9 10h4M11 14v13M22 5c-3 4-3 9 0 12v10M22 5v12"/></svg></span><div class="coachTitleRow"><span class="coachTitle">飲食執行</span><span class="coachScore" id="scoreNutrition">— <small>/ 60</small></span></div><p id="coachNutrition">—</p></div><div class="coachBox trainingCoach" tabindex="0" role="button"><span class="coachIcon" aria-hidden="true"><svg viewBox="0 0 32 32"><path d="M5 12v8M9 9v14M23 9v14M27 12v8M9 16h14"/></svg></span><div class="coachTitleRow"><span class="coachTitle">運動／恢復</span><span class="coachScore" id="scoreTraining">— <small>/ 40</small></span></div><p id="coachTraining">—</p></div></div><div class="coachConclusion"><div class="coachConclusionTop"><div><h3>教練總評</h3><div class="coachRating" id="coachRating">—</div></div><div class="overallScore"><strong id="scoreOverall">—</strong><span>/ 100</span></div></div><div class="coachConclusionShort" id="coachConclusionShort">—</div><p id="coachConclusion">—</p></div></div>
+
+</section>
+
+<section class="page" id="page-physique">
+ <div class="physiqueDataGrid"><div class="card physiqueCompositionCard"><div class="head"><h2>身體組成</h2><div class="meta" id="measurementMeta">—</div></div><div class="bodyList" id="bodyList"></div></div><div class="card physiqueMeasureCard"><div class="head"><h2>身體尺寸</h2><div class="meta" id="circumferenceMeta">—</div></div><div class="measureGrid" id="measureGrid"></div></div></div>
+ <div class="card"><div class="head"><div><h2>體態對比</h2><div class="meta" id="physiqueDate">—</div></div><div class="meta">動畫版僅作視覺比較；正式判讀仍依真實照片與量測</div></div><div class="viewTabs"><button class="active" data-view="front">正面</button><button data-view="side">側面</button><button data-view="back">背面</button></div><div class="compare"><div class="photoSlot"><b>選定日期體態</b><div class="imageStage"><img id="currentBodyImage" src="assets/current-photo-front.jpg" alt="目前體態"></div><div class="meta hidden" id="currentBodyMeta" aria-hidden="true"></div><div class="photoModeBadge">真實照片 · GPT 判讀來源</div></div><div class="photoSlot"><b>目標體態</b><div class="imageStage"><img id="targetBodyImage" src="assets/target-display-front.png" alt="目標體態"></div><div class="meta">75 kg · 15–16% 體脂 · 偏肉壯、自然有肌肉感</div></div></div></div>
+ <div class="card"><div class="head"><h2>數字差距</h2><div class="meta">負值＝仍需往目標方向調整</div></div><div class="grid4" id="physiqueMetrics"></div></div>
+ <div class="card"><div class="head"><div><h2>最近一次 GPT 體態評估</h2><div class="meta" id="analysisDate">—</div></div><div class="meta" id="analysisView">正面</div></div><div class="analysis"><div class="analysisBox"><b>目前體態判讀</b><p id="analysisText">—</p><div class="latestAnalysisHint" id="analysisHint">每週更新一次即可；未拍照的日期沿用最近一次有效評估。</div></div><div class="analysisBox"><b>與目標的差距</b><p id="comparisonText">—</p></div></div></div>
+</section>
+
+<section class="page" id="page-history">
+ <div class="historyShell">
+  <div class="historySummaryCards">
+   <div class="trendSummary" id="trendWeightCard"><div class="k">體重變化</div><div class="v" id="trendWeightDelta">—</div><div class="sub" id="trendWeightSub">—</div></div>
+   <div class="trendSummary" id="trendBfCard"><div class="k">體脂變化</div><div class="v" id="trendBfDelta">—</div><div class="sub" id="trendBfSub">—</div></div>
+   <div class="trendSummary" id="trendDirectionCard"><div class="k">趨勢判斷</div><div class="v" id="trendDirection">—</div><div class="sub" id="trendDirectionSub">依目前視窗判讀</div></div>
+  </div>
+  <div class="stockTrendCard">
+   <div class="trendToolbar"><div><h2 style="margin:0 0 4px">體態趨勢</h2><div class="meta">拖曳下方時間軸回顧歷史；滑過折線查看當期數值。</div></div><div class="trendScale" id="trendScale"><button class="active" data-scale="day">每日</button><button data-scale="week">每週</button><button data-scale="month">每月</button><button data-scale="quarter">每季</button></div></div>
+   <div class="stockLegend"><span><i class="dot" style="background:#1677ff"></i>體重 kg</span><span><i class="dot" style="background:#e75b7a"></i>體脂 %</span></div>
+   <div class="stockChartWrap"><svg class="stockSvg" id="stockTrend" viewBox="0 0 920 360" preserveAspectRatio="none"></svg><div class="trendTooltip" id="trendTooltip"></div></div>
+   <div class="trendBrushWrap"><svg class="trendBrush" id="trendBrush" viewBox="0 0 920 72" preserveAspectRatio="none"></svg></div>
+   <div class="brushHint">拖曳選取框往左／右查看更早或更新資料；左右把手可改變顯示範圍。</div>
+  </div>
+ </div>
+</section>
+
+<div class="footer">BODY GO! · V24.9 · Instant Target Switching / Food Refresh</div>
+</main>
+<script>
+(()=>{
+const API='https://script.google.com/macros/s/AKfycbyygSNrQ5YbEjHIEQq8kIR2UQVepnTKBj4VIcNTkgcwX6ioaAy7cpL7V29IGJtOQ4ui/exec';
+const $=(s,r=document)=>r.querySelector(s), $$=(s,r=document)=>[...r.querySelectorAll(s)];
+const n=v=>{const x=Number(String(v??'').replace(/,/g,''));return Number.isFinite(x)?x:null};
+const esc=s=>String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+const fmt=(v,d=1)=>{const x=n(v);return x===null?'—':x.toFixed(d).replace(/\.0$/,'')};
+const iso=v=>String(v||'').slice(0,10);
+const weekdays=['日','一','二','三','四','五','六'];
+function dateLabel(v){if(!/^\d{4}-\d{2}-\d{2}$/.test(v||''))return '—';const [y,m,d]=v.split('-').map(Number);const dt=new Date(y,m-1,d);return `${y}/${String(m).padStart(2,'0')}/${String(d).padStart(2,'0')}（${weekdays[dt.getDay()]}）`;}
+function shortDate(v){if(!/^\d{4}-\d{2}-\d{2}$/.test(v||''))return '—';const [y,m,d]=v.split('-').map(Number);const dt=new Date(y,m-1,d);return `${m}/${d}（${weekdays[dt.getDay()]}）`;}
+function addDays(v,delta){const [y,m,d]=v.split('-').map(Number);const dt=new Date(y,m-1,d);dt.setDate(dt.getDate()+delta);return `${dt.getFullYear()}-${String(dt.getMonth()+1).padStart(2,'0')}-${String(dt.getDate()).padStart(2,'0')}`;}
+function bfRange(s){let a=n(s?.goalBodyFatMin),b=n(s?.goalBodyFatMax);if(a===null||b===null||a<3||b>60||a>b){a=15;b=16}return [a,b]}
+let snap=null, selectedDate=null, latestDate=null, currentView='front', activeTab='overview';const CURRENT_BODY_ASSET_DATE='2026-08-17';
+const CURRENT_BODY_ASSETS={front:'assets/current-photo-front.jpg',side:'assets/current-photo-side.png',back:'assets/current-photo-back.jpg'};
+
+const PREVIEW=new URLSearchParams(location.search).get('preview')==='1';
+const previewData={ok:true,generatedAt:'2026-08-19 11:28:00',today:'2026-08-19',selectedDate:'2026-08-18',selectedDaily:{Date:'2026-08-18',WeightKg:'82.7',BodyFatPct:'21.6',BMI:'26.4',WorkoutMinutes:'61',ActiveEnergyKcal:'318',CalorieIntake:'2328',ProteinG:'147.8',CarbsG:'245.3',FatG:'85.5',UpdatedAt:'2026-08-18 22:20'},selectedFoods:[{Timestamp:'2026-08-18 09:34',Date:'2026-08-18',Meal:'早餐',Description:'起司貝果＋茶葉蛋＋高蛋白（水沖）',Calories:'520',ProteinG:'43.5',CarbsG:'57',FatG:'13.5'},{Timestamp:'2026-08-18 12:35',Date:'2026-08-18',Meal:'午餐',Description:'便當：甜不辣、雞排、滷菜頭、滷肉、蒸蛋',Calories:'950',ProteinG:'50',CarbsG:'60',FatG:'60'},{Timestamp:'2026-08-18 18:27',Date:'2026-08-18',Meal:'運動中',Description:'高蛋白＋瑪卡（水沖）',Calories:'170',ProteinG:'36',CarbsG:'4',FatG:'1.5'},{Timestamp:'2026-08-18 22:20',Date:'2026-08-18',Meal:'晚餐',Description:'可爾必思THE RICH＋茶葉蛋＋地瓜',Calories:'688',ProteinG:'18.3',CarbsG:'124.3',FatG:'10.5'}],selectedWorkouts:[{Timestamp:'2026-08-18 18:33',Date:'2026-08-18',WorkoutType:'背部重訓＋橢圓機',DurationMin:'61',ActiveEnergyKcal:'318',Note:'重訓40分、總重量11,976kg；結束後橢圓機20分35秒。'}],selectedMeasurement:{Timestamp:'2026-08-18 08:09',Date:'2026-08-18',WeightKg:'82.7',BodyFatPct:'21.6',BMI:'26.4',Note:'脂肪17.9kg；骨骼肌率35.4%；骨骼肌29.3kg；內臟脂肪11；BMR 1838 kcal；身體年齡43歲'},selectedSummary:{Date:'2026-08-18',Summary:'這一天完成背部重訓與橢圓機，總運動約 61 分鐘、活動熱量 318 kcal；飲食紀錄完整，總攝取 2328 kcal。82.7 kg、21.6% 體脂為正式量測。',NutritionAdvice:'總熱量比目標高約 278 kcal；蛋白質接近目標，碳水與脂肪偏高。',TrainingAdvice:'背部重訓 40 分鐘並接續橢圓機約 20 分鐘，訓練量足夠，後續重點放在恢復與動作品質。',NextAction:'後續飲食優先維持蛋白質，同時把脂肪與液體糖來源收斂。',Encouragement:'背部訓練與有氧都有完成，量測、飲食與運動紀錄也都有落到正式資料庫。',GeneratedAt:'2026-08-19 11:50:00'},selectedCircumference:{date:'2026-08-18',neckCm:36,waistCm:87,chestCm:94,armCm:31,hipCm:101,thighCm:54},selectedPhysiqueAnalysis:{front:{Date:'2026-08-17',Analysis:'正面基線照。胸、肩、手臂仍有肌肉量；腰腹脂肪覆蓋較明顯，腹部中央與下腹缺乏分離線條。整體仍具肉壯基礎。',ComparisonComment:'相較正式目標，核心差距集中在腰圍、下腹與腹部線條；不需刻意增加大量肌肉。'},side:{Date:'2026-08-17',Analysis:'側面基線照。胸、肩與上臂保有厚度；下腹向前突出較明顯，腰腹線條較柔和。',ComparisonComment:'主要方向是縮小腹部前突與腰圍，同時維持胸肩及手臂厚度。'},back:{Date:'2026-08-17',Analysis:'背面基線照。肩背仍有一定寬度與肌肉基礎；腰後側與下背線條較柔和。',ComparisonComment:'主要差距在腰後側與下背脂肪降低、肩腰比例再清楚。'}},recentDaily:[{Date:'2026-08-19',WeightKg:'82.9',BodyFatPct:'22.2',BMI:'26.5',CalorieIntake:'353',ProteinG:'40.3',CarbsG:'31.9',FatG:'7.9'},{Date:'2026-08-18',WeightKg:'82.7',BodyFatPct:'21.6',BMI:'26.4',WorkoutMinutes:'61',ActiveEnergyKcal:'318',CalorieIntake:'2328',ProteinG:'147.8',CarbsG:'245.3',FatG:'85.5'},{Date:'2026-08-17',WeightKg:'83.1',BodyFatPct:'22.8',BMI:'26.8',WorkoutMinutes:'108',ActiveEnergyKcal:'200.2',CalorieIntake:'2126',ProteinG:'155.7',CarbsG:'170.8',FatG:'89.6'},{Date:'2026-08-10',WeightKg:'80.2',BodyFatPct:'23.8',BMI:'25.6',WorkoutMinutes:'61'}],recentMeasurements:[{Date:'2026-08-19',WeightKg:'82.9',BodyFatPct:'22.2',BMI:'26.5'},{Date:'2026-08-18',WeightKg:'82.7',BodyFatPct:'21.6',BMI:'26.4'},{Date:'2026-08-17',WeightKg:'83.1',BodyFatPct:'22.8',BMI:'26.8'},{Date:'2026-08-10',WeightKg:'80.2',BodyFatPct:'23.8',BMI:'25.6'}],recentFoods:[],recentWorkouts:[],recentSummaries:[{Date:'2026-08-18',Summary:'這一天完成背部重訓與橢圓機。',NutritionAdvice:'碳水與脂肪偏高，蛋白質接近目標。',TrainingAdvice:'背部訓練量足夠，後續重點放在恢復。',NextAction:'維持蛋白質並收斂脂肪與液體糖來源。',Encouragement:'量測、飲食與運動紀錄都有完整留下。',GeneratedAt:'2026-08-19 11:50:00'},{Date:'2026-08-17',Summary:'整體執行不錯',NutritionAdvice:'蛋白質有一定基礎。',TrainingAdvice:'腿部訓練安排合理。',NextAction:'維持蛋白質與正常熱量。',Encouragement:'追蹤流程已經正式建立。',GeneratedAt:'2026-08-18 10:58:00'}],settings:{goalWeightKg:75,goalBodyFatMin:15,goalBodyFatMax:16,nutritionCalorieTarget:2050,nutritionProteinTargetG:160,nutritionCarbsTargetG:195,nutritionFatTargetG:70}};
+
+function latestAvailable(data){return (data.recentDaily||[]).map(r=>iso(r.Date)).filter(Boolean).sort().slice(-1)[0] || data.today;}
+function dataDates(data){const s=new Set();['recentDaily','recentMeasurements','recentFoods','recentWorkouts'].forEach(k=>(data[k]||[]).forEach(r=>{const d=iso(r.Date);if(d)s.add(d)}));return [...s].sort();}
+async function fetchDash(date){if(PREVIEW)return {...previewData,selectedDate:date||previewData.selectedDate};const u=new URL(API);u.searchParams.set('action','dashboard');if(date)u.searchParams.set('date',date);u.searchParams.set('_',Date.now());let lastErr=null;for(let attempt=0;attempt<2;attempt++){const ctl=new AbortController();const timer=setTimeout(()=>ctl.abort(),12000);try{const r=await fetch(u,{signal:ctl.signal,cache:'no-store'});clearTimeout(timer);if(!r.ok)throw new Error('HTTP '+r.status);const j=await r.json();if(!j.ok)throw new Error(j.error||'API error');return j;}catch(e){clearTimeout(timer);lastErr=e;if(attempt===0)await new Promise(r=>setTimeout(r,700));}}throw new Error(lastErr?.name==='AbortError'?'API 連線逾時':(lastErr?.message||'API 連線失敗'));}
+let loadSeq=0;
+async function load(date){const seq=++loadSeq;const ctl=$('#syncControl');ctl.disabled=true;ctl.classList.add('loading');$('#syncBadge').textContent='更新中';try{const incoming=await fetchDash(date);if(seq!==loadSeq)return;snap=incoming;latestDate=latestAvailable(snap);selectedDate=iso(snap.selectedDate)||date||latestDate;if(!selectedDate)selectedDate=snap.today;if(!PREVIEW&&selectedDate!==iso(snap.selectedDate)){const refined=await fetchDash(selectedDate);if(seq!==loadSeq)return;snap=refined}renderAll();const d=effectiveDaily();$('#syncBadge').textContent=updateTimeText(d?.UpdatedAt);$('#syncBadge').title=d?.UpdatedAt?`資料庫最後更新：${d.UpdatedAt}`:'此日期尚無資料更新時間';}catch(e){if(seq!==loadSeq)return;$('#syncBadge').textContent=e.message?.includes('逾時')?'更新逾時':'更新失敗';$('#syncBadge').title=e.message||'';console.error(e);}finally{if(seq===loadSeq){ctl.disabled=false;ctl.classList.remove('loading')}}}
+function setSelected(date,direction=0){if(!date||date===selectedDate)return;selectedDate=date;renderAll();const page=$('#page-'+activeTab);if(page&&direction){page.classList.remove('dateShiftNext','dateShiftPrev');void page.offsetWidth;page.classList.add(direction>0?'dateShiftNext':'dateShiftPrev');setTimeout(()=>page.classList.remove('dateShiftNext','dateShiftPrev'),240);}if(!PREVIEW)load(date)}
+function renderDateNav(){ $('#selectedDateLabel').textContent=dateLabel(selectedDate); $('#datePicker').value=selectedDate; const atLatest=!!selectedDate&&!!latestDate&&selectedDate>=latestDate; $('#nextDay').disabled=atLatest; $('#nextDay').style.opacity=atLatest?'.45':'1'; $('#latestDate').classList.toggle('hidden',atLatest||!latestDate);}
+function selectedSnapMatches(){return iso(snap?.selectedDate)===selectedDate}
+function effectiveDaily(){return (selectedSnapMatches()?snap.selectedDaily:null) || (snap.recentDaily||[]).find(r=>iso(r.Date)===selectedDate) || {};}
+function effectiveFoods(){return selectedSnapMatches()&&snap.selectedFoods?.length?snap.selectedFoods:(snap.recentFoods||[]).filter(r=>iso(r.Date)===selectedDate)}
+function foodTotals(foods=[]){const total={CalorieIntake:0,ProteinG:0,CarbsG:0,FatG:0};let any=false;for(const r of foods){for(const [src,dst] of [['Calories','CalorieIntake'],['ProteinG','ProteinG'],['CarbsG','CarbsG'],['FatG','FatG']]){const v=n(r?.[src]);if(v!==null){total[dst]+=v;any=true;}}}return any?total:null;}
+function dailyNutritionView(d,foods=[]){const ft=foodTotals(foods);return ft?{...d,...ft}:d;}
+function targetImageUrl(view){const u=new URL(API);u.searchParams.set('action','image');u.searchParams.set('slot','target');u.searchParams.set('view',view);u.searchParams.set('_',Date.now());return u.toString();}
+let targetImageSeq=0;
+async function loadTargetImage_(view){const img=$('#targetBodyImage'),seq=++targetImageSeq,fallback=`assets/target-display-${view}.png?v=24.9`;img.onerror=null;img.src=fallback;try{const r=await fetch(targetImageUrl(view),{cache:'no-store'});if(!r.ok)throw new Error('HTTP '+r.status);const j=await r.json();if(seq!==targetImageSeq||view!==currentView)return;if(j&&j.ok&&!j.missing&&j.base64){img.onerror=()=>{img.onerror=null;img.src=fallback;};img.src=`data:${j.mimeType||'image/png'};base64,${j.base64}`;}}catch(e){if(seq===targetImageSeq&&view===currentView){img.onerror=null;img.src=fallback;}}}
+function effectiveWorks(){return selectedSnapMatches()&&snap.selectedWorkouts?.length?snap.selectedWorkouts:(snap.recentWorkouts||[]).filter(r=>iso(r.Date)===selectedDate)}
+function effectiveMeasurement(){return (selectedSnapMatches()?snap.selectedMeasurement:null) || (snap.recentMeasurements||[]).find(r=>iso(r.Date)===selectedDate) || {};}
+function summaryForSelectedDate(){return (selectedSnapMatches()?snap.selectedSummary:null) || (snap.recentSummaries||[]).find(r=>iso(r.Date)===selectedDate) || null;}
+function timeValue(v){if(!v)return 0;const s=String(v).trim().replace(/-/g,'/');const t=Date.parse(s);return Number.isFinite(t)?t:0;}
+function coachIsStale(d,s){const du=timeValue(d?.UpdatedAt),su=timeValue(s?.SourceUpdatedAt);return !!(s&&du&&su&&du>su);}
+
+function parseNoteValue(note,label){const m=String(note||'').match(new RegExp(label+'\\s*(\\d+(?:\\.\\d+)?)\\s*(kg|kcal|級|歲|%)?','i'));return m?m[1]+(m[2]?' '+m[2]:''):null}
+function parseBmr(note){const mm=String(note||'').match(/BMR\s*[:：]?\s*(\d+(?:\.\d+)?)/i);return mm?Number(mm[1]):null}
+function bmrInfo(m,d){const same=parseBmr(m?.Note)||parseBmr(d?.Note);if(same!=null)return {value:same,source:'當日 Omron'};const candidates=[];if(snap?.selectedMeasurement)candidates.push(snap.selectedMeasurement);(snap?.recentMeasurements||[]).forEach(x=>candidates.push(x));const prior=candidates.filter(x=>iso(x?.Date)&&iso(x.Date)<=selectedDate&&parseBmr(x?.Note)!=null).sort((a,b)=>String(b.Timestamp||b.Date||'').localeCompare(String(a.Timestamp||a.Date||'')))[0];if(prior)return {value:parseBmr(prior.Note),source:`沿用 ${shortDate(iso(prior.Date))} Omron`};const weightRows=[m,d,...(snap?.recentMeasurements||[]),...(snap?.recentDaily||[])].filter(x=>n(x?.WeightKg)!=null&&(!iso(x?.Date)||iso(x.Date)<=selectedDate)).sort((a,b)=>String(iso(b?.Date)).localeCompare(String(iso(a?.Date))));const w=n(weightRows[0]?.WeightKg);return w==null?{value:null,source:'無可用資料'}:{value:Math.round(10*w+6.25*176-5*37+5),source:'依最近體重公式估算'}}
+function renderEnergyBalance(d,m,works=[]){const intake=n(d?.CalorieIntake);const recordedWorkout=works.reduce((a,r)=>a+(n(r.ActiveEnergyKcal)||0),0);const active=recordedWorkout>0?recordedWorkout:(n(d?.ActiveEnergyKcal)||0);const bi=bmrInfo(m,d),bmr=bi.value;const dailyActivity=bmr==null?null:Math.round(bmr*.2);const total=bmr==null?null:Math.round(bmr+(dailyActivity||0)+active);const bal=(intake==null||total==null)?null:Math.round(total-intake);$('#energyIntake').textContent=intake==null?'—':`${fmt(intake,0)} kcal`;$('#energyTdee').textContent=total==null?'—':`${fmt(total,0)} kcal`;$('#energyDeficit').textContent=bal==null?'—':`${bal>=0?fmt(bal,0):'+'+fmt(Math.abs(bal),0)} kcal`;const cell=$('#energyBalanceCell');cell.classList.toggle('deficit',bal!=null&&bal>=0);cell.classList.toggle('surplus',bal!=null&&bal<0);let s=bmr==null?'目前沒有足夠資料估算總消耗。':`BMR ${fmt(bmr,0)}（${bi.source}）＋日常活動約 ${fmt(dailyActivity,0)}＋已記錄運動 ${fmt(active,0)} kcal。`;if(bal!=null){if(bal>=300&&bal<=500)s+=` <strong>預估赤字 ${fmt(bal,0)} kcal，落在目前 300–500 kcal 的目標區間。</strong>`;else if(bal>500&&bal<=700)s+=` <strong>預估赤字 ${fmt(bal,0)} kcal，偏積極；注意訓練恢復與飢餓感。</strong>`;else if(bal>700)s+=` <strong>預估赤字偏大，不要再靠少吃或加碼有氧追數字。</strong>`;else if(bal>=0)s+=` <strong>目前為小幅赤字，單日不需要刻意補大。</strong>`;else s+=` <strong>目前約 ${fmt(Math.abs(bal),0)} kcal 盈餘，看一週平均即可，不需要隔天補償。</strong>`;}$('#energyStatus').innerHTML=s;}
+function updateTimeText(v){const t=String(v||'').trim();if(!t)return '更新 —';const m=t.match(/(\d{1,2}):(\d{2})/);return m?`更新 ${m[1].padStart(2,'0')}:${m[2]}`:`更新 ${t}`;}
+function clamp(x,a,b){return Math.max(a,Math.min(b,x));}
+function dailyForDate(ds){return (snap.recentDaily||[]).find(r=>iso(r.Date)===ds)||((iso(snap.selectedDaily?.Date)===ds)?snap.selectedDaily:null)||{};}
+function workoutsBefore(ds,days=7){const end=new Date(ds+'T12:00:00');return (snap.recentWorkouts||[]).filter(r=>{const d=iso(r.Date);if(!d)return false;const x=new Date(d+'T12:00:00');const diff=(end-x)/86400000;return diff>=0&&diff<days;});}
+function scoreNutrition(d){const target={cal:2050,p:160,c:195,f:70};let score=60;const cal=n(d.CalorieIntake),p=n(d.ProteinG),c=n(d.CarbsG),f=n(d.FatG);if(cal!=null){const over=Math.max(0,cal-target.cal);score-=Math.min(10,Math.round(over/90));if(selectedDate<latestDate&&cal<target.cal*.72)score-=Math.min(7,Math.round((target.cal*.72-cal)/150));}else score-=8;if(p!=null){const ratio=p/target.p;if(ratio<.95)score-=Math.min(12,Math.ceil((.95-ratio)*20));}else score-=7;if(f!=null&&f>target.f)score-=Math.min(8,Math.ceil((f-target.f)/6));if(c!=null&&c>target.c*1.15)score-=Math.min(5,Math.ceil((c-target.c*1.15)/20));return clamp(Math.round(score),25,60);}
+function scoreTraining(d,works){const mins=n(d.WorkoutMinutes)??works.reduce((a,r)=>a+(n(r.DurationMin)||0),0);if(mins>=45)return 39;if(mins>=25)return 37;if(mins>0)return 34;const recent=workoutsBefore(selectedDate,4);if(recent.length>=3)return 39;if(recent.length>=2)return 38;const week=workoutsBefore(selectedDate,7);if(week.length>=4)return 39;if(week.length>=2)return 35;return 30;}
+function ratingFor(x){if(x>=90)return '非常穩定';if(x>=80)return '良好';if(x>=70)return '尚可';if(x>=60)return '需要注意';return '需要調整';}
+function stripTemplateLabels(text){return String(text||'').replace(/(?:一句結論|現況|判斷|下一步|飲食|運動|心理|教練結論)\s*[：:]/g,'').replace(/截至\s*\d{1,2}:\d{2}[，,、]?\s*/g,'').replace(/\s*｜\s*/g,'\n').replace(/。\s*/g,'。\n').replace(/\n{3,}/g,'\n\n').trim();}
+function conciseCoachText(text,maxParts=3){let t=stripTemplateLabels(text);if(!t)return '—';const parts=t.split(/\n+/).map(x=>x.trim()).filter(Boolean);return parts.slice(0,maxParts).join('\n\n');}
+function firstCoachSentence(text){const t=stripTemplateLabels(text);if(!t)return '—';const parts=t.split(/\n+/).map(x=>x.trim()).filter(Boolean);if(!parts.length)return '—';const first=parts[0];return first.length>72?first.slice(0,72)+'…':first;}
+function uniqueCoachParts(...texts){const out=[];texts.forEach(text=>{stripTemplateLabels(text).split(/\n+/).map(x=>x.trim()).filter(Boolean).forEach(x=>{const key=x.replace(/[\s，。；、：:｜|]/g,'').slice(0,28);const duplicate=out.some(y=>{const yk=y.replace(/[\s，。；、：:｜|]/g,'').slice(0,28);return yk.includes(key)||key.includes(yk)});if(key&&!duplicate)out.push(x)})});return out.join('\n\n');}
+function renderAll(){renderDateNav();renderOverview();renderPhysique();renderHistory();}
+function renderOverview(){const d=effectiveDaily(),m=effectiveMeasurement(),foods=effectiveFoods(),works=effectiveWorks(),nd=dailyNutritionView(d,foods);renderEnergyBalance(nd,m,works);$('#overviewMeta').textContent=dateLabel(selectedDate);$('#overviewUpdated').textContent=d.UpdatedAt?`資料更新 ${String(d.UpdatedAt).slice(0,16)}`:'此日期尚無更新時間';const summaries=[['體重',fmt(m.WeightKg??d.WeightKg),'kg',m.WeightKg?'正式量測':'Daily'],['體脂',fmt(m.BodyFatPct??d.BodyFatPct),'%',m.BodyFatPct?'正式量測':'Daily'],['運動',fmt(d.WorkoutMinutes??works.reduce((a,r)=>a+(n(r.DurationMin)||0),0),0),'分',`${fmt(d.ActiveEnergyKcal??works.reduce((a,r)=>a+(n(r.ActiveEnergyKcal)||0),0),0)} kcal`],['飲食',fmt(nd.CalorieIntake,0),'kcal',`${foods.length} 筆飲食紀錄`]];$('#summaryGrid').innerHTML=summaries.map(([k,v,u,s])=>`<div class="metric"><div class="k">${k}</div><div class="v">${v} <span class="u">${u}</span></div><div class="s">${s}</div></div>`).join('');
+const goals=[['熱量',nd.CalorieIntake,2050,'kcal','#1677ff'],['蛋白質',nd.ProteinG,160,'g','#20a760'],['碳水',nd.CarbsG,195,'g','#f4a629'],['脂肪',nd.FatG,70,'g','#e75b7a']];$('#nutritionMeta').textContent='目標線 100%';$('#nutritionGoals').innerHTML=goals.map(([name,val,goal,unit,color])=>{val=n(val);let pct=val===null?0:Math.round(val/goal*100),width=Math.min(100,pct/120*100),delta='—';if(val!==null){const diff=goal-val;delta=diff>=0?`剩 ${fmt(diff,unit==='kcal'?0:1)} ${unit}`:`超 ${fmt(-diff,unit==='kcal'?0:1)} ${unit}`;if(diff<0)color='#b42318'}return `<div><div class="nutriHead"><div class="nutriName">${name}</div><div class="nutriVal"><strong>${fmt(val,unit==='kcal'?0:1)}</strong> / ${goal} ${unit}</div><div class="nutriPct" style="color:${color}">${val===null?'—':pct+'%'}</div><div class="nutriDelta">${delta}</div></div><div class="track"><div class="fill" style="width:${width}%;background:${color}"></div><div class="goalLine"></div></div><div class="axis"><span class="z">0</span><span class="g">100%</span><span class="m">120%</span></div></div>`}).join('');
+const bodyRows=[['體重',m.WeightKg?`${fmt(m.WeightKg)} kg`:'—'],['體脂',m.BodyFatPct?`${fmt(m.BodyFatPct)}%`:'—'],['BMI',fmt(m.BMI)],['脂肪量',parseNoteValue(m.Note,'脂肪')||'—'],['骨骼肌率',parseNoteValue(m.Note,'骨骼肌率')||'—'],['骨骼肌',parseNoteValue(m.Note,'骨骼肌')||'—'],['內臟脂肪',parseNoteValue(m.Note,'內臟脂肪')||'—'],['BMR',parseNoteValue(m.Note,'BMR')||'—'],['身體年齡',parseNoteValue(m.Note,'身體年齡')||'—']];$('#measurementMeta').textContent=m.Timestamp?`${m.Source||'Omron／ChatGPT紀錄'} · ${String(m.Timestamp).slice(11,16)}`:dateLabel(selectedDate);$('#bodyList').innerHTML=bodyRows.map(([k,v])=>`<div class="bodyRow"><b>${k}</b><span>${v}</span></div>`).join('');
+$('#foodCount').textContent=`${foods.length} 筆`;$('#foodList').innerHTML=foods.length?foods.map(r=>`<div class="entry"><b>${esc(r.Meal||'飲食')}</b><div><div class="desc">${esc(r.Description||'')}</div><div class="small">${r.Calories?esc(r.Calories)+' kcal':''}${r.ProteinG?' · P'+esc(r.ProteinG):''}${r.CarbsG?' · C'+esc(r.CarbsG):''}${r.FatG?' · F'+esc(r.FatG):''}</div></div><div class="time">${esc(String(r.Timestamp||'').slice(11,16))}</div></div>`).join(''):'<div class="empty">此日期沒有飲食紀錄</div>';$('#workoutCount').textContent=`${works.length} 筆`;$('#workList').innerHTML=works.length?works.map(r=>`<div class="entry"><b>${esc(r.WorkoutType||'運動')}</b><div><div class="desc">${esc(r.Note||'')}</div><div class="small">${r.DurationMin?esc(r.DurationMin)+' 分':''}${r.ActiveEnergyKcal?' · '+esc(r.ActiveEnergyKcal)+' kcal':''}</div></div><div class="time">${esc(String(r.Timestamp||'').slice(11,16))}</div></div>`).join(''):'<div class="empty">此日期沒有運動紀錄</div>';
+const s=summaryForSelectedDate(),staleCoach=coachIsStale(d,s);$('#coachDate').textContent=dateLabel(selectedDate);$('#coachFreshness').classList.toggle('hidden',!staleCoach);$('#coachFreshness').classList.toggle('stale',staleCoach);
+const cm=effectiveMeasurement(),cc=currentCirc(),pa=analysisForView();let physiqueText='';if(pa?.Analysis)physiqueText=pa.Analysis;if(pa?.ComparisonComment)physiqueText+=(physiqueText?'\n\n':'')+pa.ComparisonComment;if(!physiqueText&&(n(cm.WeightKg)!=null||n(cm.BodyFatPct)!=null)){physiqueText=`體態量測維持追蹤中。${n(cm.WeightKg)!=null?`體重 ${fmt(cm.WeightKg)} kg` : ''}${n(cm.BodyFatPct)!=null?`，體脂 ${fmt(cm.BodyFatPct)}%` : ''}${cc?.waistCm?`，腰圍 ${cc.waistCm} cm` : ''}。\n\n單日波動先不過度解讀，持續看 7 日趨勢。`; }if(!physiqueText)physiqueText='目前以最近一次有效體態評估為基準；每週更新照片即可，不需要每天拍。';
+$('#coachTraining').textContent=stripTemplateLabels(s?.TrainingAdvice)||'—';$('#coachNutrition').textContent=stripTemplateLabels(s?.NutritionAdvice)||'—';
+const scN=scoreNutrition(nd),scT=scoreTraining(d,works),total=scN+scT;$('#scoreTraining').innerHTML=`${scT} <small>/ 40</small>`;$('#scoreNutrition').innerHTML=`${scN} <small>/ 60</small>`;$('#scoreOverall').textContent=total;$('#coachRating').textContent=ratingFor(total);
+let conclusion=uniqueCoachParts(s?.Summary||'',physiqueText,s?.NextAction||'',s?.Encouragement||'');
+if(!conclusion||conclusion==='—'){const tips=[];const cal=n(d.CalorieIntake),pro=n(d.ProteinG);if(pro!=null&&pro<150)tips.push('今天優先把蛋白質補足，其他照正常份量吃。');if(cal!=null&&cal>2200)tips.push('今天總量偏高，下一餐回正常節奏，不做補償。');if(!tips.length)tips.push('維持今天的飲食與訓練節奏，依本週安排與恢復決定，不為分數硬加運動。');conclusion=tips.slice(0,2).join('\n\n');}
+if(staleCoach)conclusion='已有較新的正式資料；教練文字待更新。\n\n'+conclusion;
+$('#coachConclusion').textContent=conclusion;
+$('#coachConclusionShort').textContent=firstCoachSentence(s?.Summary||conclusion);
+}
+function currentCirc(){if(selectedSnapMatches())return snap.selectedCircumference||{};return {}}
+function physiqueViewMatch(row,view){const pv=String(row?.PhotoView||'').toLowerCase();if(view==='front')return pv.includes('front')||pv.includes('正面');if(view==='side')return pv.includes('side')||pv.includes('側面');if(view==='back')return pv.includes('back')||pv.includes('背面');return false}
+function analysisForView(){let a=selectedSnapMatches()?snap.selectedPhysiqueAnalysis?.[currentView]:null;if(a?.Analysis)return a;a=snap.latestPhysiqueAnalysis?.[currentView];if(a?.Analysis&&(!selectedDate||!a.Date||iso(a.Date)<=selectedDate))return a;const rows=(snap.recentPhysique||[]).filter(r=>r?.Analysis&&physiqueViewMatch(r,currentView)&&(!selectedDate||!r.Date||iso(r.Date)<=selectedDate)).sort((x,y)=>String(y.Timestamp||y.Date||'').localeCompare(String(x.Timestamp||x.Date||'')));return rows[0]||null}
+function measureIcon_(k){
+ const icons={
+  '頸圍':'<svg viewBox="0 0 24 24"><path d="M7 5c1.2 2 2.8 3 5 3s3.8-1 5-3M6 9c1.4 1.8 3.4 2.7 6 2.7S16.6 10.8 18 9M5 13c2 2 4.3 3 7 3s5-1 7-3"/></svg>',
+  '腰圍':'<svg viewBox="0 0 24 24"><path d="M7 4c1 2.4 1 4.8 0 7s-1 4.6 0 9M17 4c-1 2.4-1 4.8 0 7s1 4.6 0 9M6 12h12M9 10v4M15 10v4"/></svg>',
+  '胸圍':'<svg viewBox="0 0 24 24"><path d="M8 5c1.2 1 2.5 1.5 4 1.5S14.8 6 16 5M6 8c1 1 1.5 2.4 1.5 4.2V19M18 8c-1 1-1.5 2.4-1.5 4.2V19M7.5 12c2.8 1.2 6.2 1.2 9 0"/></svg>',
+  '手臂':'<svg viewBox="0 0 24 24"><path d="M6 15c2-1 3-3.5 3-6 0-1.5 1-2.5 2.2-2.5 1.5 0 1.8 1.2 1.4 2.5l-.5 1.8c1.8-.6 3.8-.2 5.2 1.2 1.2 1.2 1.7 2.7 1.7 4.5H8.5C7.5 16.5 6.7 16 6 15Z"/></svg>',
+  '臀圍':'<svg viewBox="0 0 24 24"><path d="M8 5c0 3-1.5 4.5-1.5 7.5C6.5 16 8.5 19 12 19s5.5-3 5.5-6.5C17.5 9.5 16 8 16 5M12 10v9M8 12c1.3 1 2.7 1.5 4 1.5s2.7-.5 4-1.5"/></svg>',
+  '大腿':'<svg viewBox="0 0 24 24"><path d="M8 4c0 4-1 7-2 10-.5 1.6-.5 3.5 0 6M16 4c0 4 1 7 2 10 .5 1.6.5 3.5 0 6M10 4c.4 5 .3 10-.7 16M14 4c-.4 5-.3 10 .7 16"/></svg>'
+ };
+ return icons[k]||'<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="7"/></svg>';
+}
+const DEFAULT_MEASURE_TARGETS={
+  '頸圍':[37,39],
+  '腰圍':[78,81],
+  '胸圍':[98,102],
+  '手臂':[33,35],
+  '臀圍':[96,100],
+  '大腿':[56,59]
+};
+function measureTarget_(label,settings={}){
+  const aliases={
+    '頸圍':['goalNeckCmMin','goalNeckCmMax'],
+    '腰圍':['goalWaistCmMin','goalWaistCmMax'],
+    '胸圍':['goalChestCmMin','goalChestCmMax'],
+    '手臂':['goalArmCmMin','goalArmCmMax'],
+    '臀圍':['goalHipCmMin','goalHipCmMax'],
+    '大腿':['goalThighCmMin','goalThighCmMax']
+  };
+  const pair=aliases[label]||[];
+  const rawLo=settings[pair[0]],rawHi=settings[pair[1]];
+  const lo=(rawLo===undefined||rawLo===null||rawLo==='')?null:n(rawLo),hi=(rawHi===undefined||rawHi===null||rawHi==='')?null:n(rawHi);
+  if(lo!==null&&hi!==null)return [lo,hi];
+  const mt=settings.measurementTargets?.[label];
+  if(Array.isArray(mt)&&mt.length>=2){const a=n(mt[0]),b=n(mt[1]);if(a!==null&&b!==null)return [a,b];}
+  return DEFAULT_MEASURE_TARGETS[label]||null;
+}
+function renderPhysique(){const m=effectiveMeasurement(),d=effectiveDaily(),c=currentCirc(),s=snap.settings||{};$('#physiqueDate').textContent=dateLabel(selectedDate);const imgs={front:'front',side:'side',back:'back'};const bodyImg=$('#currentBodyImage');bodyImg.src=CURRENT_BODY_ASSETS[currentView];loadTargetImage_(imgs[currentView]);const bodyAvailable=selectedDate>=CURRENT_BODY_ASSET_DATE;bodyImg.style.display=bodyAvailable?'block':'none';$('#currentBodyMeta').textContent='';$('#circumferenceMeta').textContent=c.date?`最近實測 ${dateLabel(iso(c.date))}`:'此日期之前尚無圍度量測';const weight=n(m.WeightKg??d.WeightKg),bf=n(m.BodyFatPct??d.BodyFatPct),gw=n(s.goalWeightKg)||75,[bfMin,bfMax]=bfRange(s);const weightGap=weight===null?null:gw-weight;const bfGap=bf===null?'—':`${fmt(bfMax-bf)}～${fmt(bfMin-bf)}%`;const arr=[['體重',fmt(weight),'kg'],['距目標體重',weightGap===null?'—':`${weightGap>=0?'+':''}${fmt(weightGap)}`,'kg'],['體脂',fmt(bf),'%'],['距目標體脂',bfGap,'']];$('#physiqueMetrics').innerHTML=arr.map(([k,v,u])=>`<div class="metric"><div class="k">${k}</div><div class="v">${v} <span class="u">${u}</span></div></div>`).join('');const ms=[['頸圍',c.neckCm],['腰圍',c.waistCm],['胸圍',c.chestCm],['手臂',c.armCm],['臀圍',c.hipCm],['大腿',c.thighCm]];$('#measureGrid').innerHTML=ms.map(([k,v])=>{const t=measureTarget_(k,s);const target=t?`<div class="target">目標 <strong>${fmt(t[0],0)}–${fmt(t[1],0)} cm</strong></div>`:'';return `<div class="measure"><div class="measureTop"><span class="measureIcon" aria-hidden="true">${measureIcon_(k)}</span><div class="k">${k}</div></div><div class="v">${v??'—'} <small>cm</small></div>${target}</div>`}).join('');const a=analysisForView();$('#analysisDate').textContent=a?.Date?`最近評估 ${dateLabel(iso(a.Date))}`:'尚無體態評估';$('#analysisView').textContent={front:'正面',side:'側面',back:'背面'}[currentView];$('#analysisText').textContent=a?.Analysis||'目前尚無可用的正式體態分析。';$('#comparisonText').textContent=a?.ComparisonComment||'每週拍一次即可；新照片上傳後會更新，其他日期沿用最近一次有效評估。';}
+let trendScale='day',trendWindow={start:0,end:0},trendDrag=null;
+function trendRawRows(){
+  const byDate=new Map();
+  [...(snap?.recentDaily||[]),...(snap?.recentMeasurements||[])].forEach(r=>{const ds=iso(r.Date);if(!ds)return;const prev=byDate.get(ds)||{Date:ds};const w=n(r.WeightKg),bf=n(r.BodyFatPct);if(w!=null)prev.WeightKg=w;if(bf!=null)prev.BodyFatPct=bf;byDate.set(ds,prev)});
+  return [...byDate.values()].filter(r=>n(r.WeightKg)!=null||n(r.BodyFatPct)!=null).sort((a,b)=>a.Date.localeCompare(b.Date));
+}
+function aggregateTrend(rows,scale){
+  if(scale==='day')return rows;
+  const bucket=new Map();
+  function keyFor(ds){const [y,m,d]=ds.split('-').map(Number);const dt=new Date(y,m-1,d);if(scale==='week'){const day=(dt.getDay()+6)%7;dt.setDate(dt.getDate()-day);return `${dt.getFullYear()}-W${String(Math.ceil((((dt-new Date(dt.getFullYear(),0,1))/86400000)+new Date(dt.getFullYear(),0,1).getDay()+1)/7)).padStart(2,'0')}`}if(scale==='month')return `${y}-${String(m).padStart(2,'0')}`;return `${y}-Q${Math.floor((m-1)/3)+1}`}
+  rows.forEach(r=>{const k=keyFor(r.Date),x=bucket.get(k)||{key:k,dates:[],weights:[],bfs:[]};x.dates.push(r.Date);if(n(r.WeightKg)!=null)x.weights.push(n(r.WeightKg));if(n(r.BodyFatPct)!=null)x.bfs.push(n(r.BodyFatPct));bucket.set(k,x)});
+  return [...bucket.values()].map(x=>({Date:x.dates[x.dates.length-1],Label:x.key,WeightKg:x.weights.length?x.weights.reduce((a,b)=>a+b,0)/x.weights.length:null,BodyFatPct:x.bfs.length?x.bfs.reduce((a,b)=>a+b,0)/x.bfs.length:null}));
+}
+function defaultTrendWindow(len){const size=trendScale==='day'?14:trendScale==='week'?12:trendScale==='month'?12:8;return {start:Math.max(0,len-size),end:Math.max(0,len-1)}}
+function trendRows(){return aggregateTrend(trendRawRows(),trendScale)}
+function renderHistory(){const rows=trendRows();if(!rows.length){$('#stockTrend').innerHTML='<text x="460" y="170" text-anchor="middle" fill="#8691a3" font-size="14">量測資料累積中</text>';$('#trendBrush').innerHTML='';return}if(trendWindow.end>=rows.length||trendWindow.end<=trendWindow.start)trendWindow=defaultTrendWindow(rows.length);renderStockChart(rows);renderTrendBrush(rows);renderTrendCards(rows.slice(trendWindow.start,trendWindow.end+1));}
+function trendLabel(r){if(trendScale==='day')return String(r.Date).slice(5).replace('-','/');if(trendScale==='week')return r.Label||r.Date;if(trendScale==='month')return r.Label||String(r.Date).slice(0,7);return r.Label||r.Date}
+function renderTrendCards(rows){const first=rows.find(r=>n(r.WeightKg)!=null||n(r.BodyFatPct)!=null),last=[...rows].reverse().find(r=>n(r.WeightKg)!=null||n(r.BodyFatPct)!=null);const wd=first&&last&&n(first.WeightKg)!=null&&n(last.WeightKg)!=null?n(last.WeightKg)-n(first.WeightKg):null;const bd=first&&last&&n(first.BodyFatPct)!=null&&n(last.BodyFatPct)!=null?n(last.BodyFatPct)-n(first.BodyFatPct):null;$('#trendWeightDelta').textContent=wd==null?'—':`${wd>0?'+':''}${fmt(wd)} kg`;$('#trendWeightSub').textContent=first&&last?`${trendLabel(first)} → ${trendLabel(last)}`:'—';$('#trendBfDelta').textContent=bd==null?'—':`${bd>0?'+':''}${fmt(bd)}%`;$('#trendBfSub').textContent=first&&last?`${fmt(first.BodyFatPct)}% → ${fmt(last.BodyFatPct)}%`:'—';let dir='持平',sub='視窗內變化不大';if(wd!=null||bd!=null){if((wd??0)<-.3&&(bd??0)<=.2){dir='下降';sub='體重下降，體脂未明顯走高'}else if((bd??0)<-.5&&(wd??0)<.5){dir='改善';sub='體脂下降，體重維持可控'}else if((wd??0)>.7&&(bd??0)>.5){dir='上升';sub='體重與體脂同向上升，需觀察'}else if((wd??0)<.3&&(bd??0)<.3){dir='穩定';sub='整體維持在相近區間'}}$('#trendDirection').textContent=dir;$('#trendDirectionSub').textContent=sub;}
+function chartPath(vals,xFn,yFn){let d='';vals.forEach((v,i)=>{if(v==null)return;d+=(d?' L ':'M ')+xFn(i).toFixed(1)+' '+yFn(v).toFixed(1)});return d}
+function renderStockChart(all){const svg=$('#stockTrend'),tip=$('#trendTooltip');const rows=all.slice(trendWindow.start,trendWindow.end+1);if(rows.length<2){svg.innerHTML='<text x="460" y="170" text-anchor="middle" fill="#8691a3" font-size="14">這個比例尺的資料還不足</text>';return}const W=920,H=360,L=58,R=58,T=26,B=48;const x=i=>L+i*(W-L-R)/(rows.length-1);const weights=rows.map(r=>n(r.WeightKg)),bfs=rows.map(r=>n(r.BodyFatPct));const wv=weights.filter(v=>v!=null),bv=bfs.filter(v=>v!=null);const wmin=Math.min(...wv)-.5,wmax=Math.max(...wv)+.5,bmin=Math.min(...bv)-.8,bmax=Math.max(...bv)+.8;const yw=v=>T+(wmax-v)/(wmax-wmin||1)*(H-T-B);const yb=v=>T+(bmax-v)/(bmax-bmin||1)*(H-T-B);let html='';for(let j=0;j<5;j++){const yy=T+j*(H-T-B)/4;html+=`<line x1="${L}" y1="${yy}" x2="${W-R}" y2="${yy}" stroke="#e8edf3" stroke-width="1" stroke-dasharray="3 4"/>`;const wlab=wmax-j*(wmax-wmin)/4,blab=bmax-j*(bmax-bmin)/4;html+=`<text x="${L-10}" y="${yy+4}" text-anchor="end" fill="#65809f" font-size="10">${fmt(wlab)}</text><text x="${W-R+10}" y="${yy+4}" fill="#e75b7a" font-size="10">${fmt(blab)}</text>`}html+=`<path d="${chartPath(weights,x,yw)}" fill="none" stroke="#1677ff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/><path d="${chartPath(bfs,x,yb)}" fill="none" stroke="#e75b7a" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>`;rows.forEach((r,i)=>{if(weights[i]!=null)html+=`<circle cx="${x(i)}" cy="${yw(weights[i])}" r="4" fill="#fff" stroke="#1677ff" stroke-width="2"/>`;if(bfs[i]!=null)html+=`<circle cx="${x(i)}" cy="${yb(bfs[i])}" r="4" fill="#fff" stroke="#e75b7a" stroke-width="2"/>`;const step=Math.max(1,Math.ceil(rows.length/7));if(i%step===0||i===rows.length-1)html+=`<text x="${x(i)}" y="${H-16}" text-anchor="middle" fill="#8794a6" font-size="10">${trendLabel(r)}</text>`});svg.innerHTML=html;svg.onpointermove=e=>{const rect=svg.getBoundingClientRect();const px=(e.clientX-rect.left)/rect.width*W;let idx=Math.round((px-L)/(W-L-R)*(rows.length-1));idx=Math.max(0,Math.min(rows.length-1,idx));const r=rows[idx];tip.innerHTML=`<b>${esc(trendLabel(r))}</b><br><span style="color:#7fb6ff">●</span> 體重 ${fmt(r.WeightKg)} kg<br><span style="color:#ff7893">●</span> 體脂 ${fmt(r.BodyFatPct)}%`;tip.style.display='block';tip.style.left=Math.min(rect.width-145,Math.max(8,e.clientX-rect.left+12))+'px';tip.style.top=Math.max(8,e.clientY-rect.top-70)+'px'};svg.onpointerleave=()=>tip.style.display='none';}
+function renderTrendBrush(rows){const svg=$('#trendBrush');const W=920,H=72,L=10,R=10,T=8,B=8;const x=i=>L+(rows.length<=1?0:i*(W-L-R)/(rows.length-1));const vals=rows.map(r=>n(r.WeightKg)),valid=vals.filter(v=>v!=null);const min=Math.min(...valid),max=Math.max(...valid),y=v=>H-B-(v-min)/(max-min||1)*(H-T-B);const path=chartPath(vals,x,y);const s=x(trendWindow.start),e=x(trendWindow.end);svg.innerHTML=`<path d="${path}" fill="none" stroke="#a8c9fb" stroke-width="1.5"/><rect x="0" y="0" width="${s}" height="${H}" fill="rgba(245,247,250,.74)"/><rect x="${e}" y="0" width="${W-e}" height="${H}" fill="rgba(245,247,250,.74)"/><rect x="${s}" y="3" width="${Math.max(8,e-s)}" height="${H-6}" rx="8" fill="rgba(22,119,255,.07)" stroke="#6da8ff" stroke-width="1.5"/><rect data-handle="start" x="${s-5}" y="18" width="10" height="36" rx="5" fill="#1677ff"/><rect data-handle="end" x="${e-5}" y="18" width="10" height="36" rx="5" fill="#1677ff"/>`;svg.onpointerdown=ev=>{const rect=svg.getBoundingClientRect(),px=(ev.clientX-rect.left)/rect.width*W;const hit=ev.target?.dataset?.handle;trendDrag={type:hit||((px>=s&&px<=e)?'move':'jump'),startPx:px,orig:{...trendWindow}};svg.setPointerCapture(ev.pointerId);svg.classList.add('dragging');if(trendDrag.type==='jump'){const len=trendWindow.end-trendWindow.start,idx=Math.round((px-L)/(W-L-R)*(rows.length-1));trendWindow.start=Math.max(0,Math.min(rows.length-1-len,idx-Math.floor(len/2)));trendWindow.end=trendWindow.start+len;renderHistory()}};svg.onpointermove=ev=>{if(!trendDrag)return;const rect=svg.getBoundingClientRect(),px=(ev.clientX-rect.left)/rect.width*W,di=Math.round((px-trendDrag.startPx)/(W-L-R)*(rows.length-1));if(trendDrag.type==='move'){const len=trendDrag.orig.end-trendDrag.orig.start;let st=Math.max(0,Math.min(rows.length-1-len,trendDrag.orig.start+di));trendWindow={start:st,end:st+len}}else if(trendDrag.type==='start'){trendWindow.start=Math.max(0,Math.min(trendWindow.end-1,trendDrag.orig.start+di))}else if(trendDrag.type==='end'){trendWindow.end=Math.min(rows.length-1,Math.max(trendWindow.start+1,trendDrag.orig.end+di))}renderStockChart(rows);renderTrendCards(rows.slice(trendWindow.start,trendWindow.end+1));renderTrendBrush(rows)};svg.onpointerup=svg.onpointercancel=()=>{trendDrag=null;svg.classList.remove('dragging')};}
+function enableDateSwipe(el){if(!el)return;let sx=0,sy=0,tracking=false;el.addEventListener('touchstart',e=>{if(e.touches.length!==1||e.target.closest('button,input,a'))return;sx=e.touches[0].clientX;sy=e.touches[0].clientY;tracking=true},{passive:true});el.addEventListener('touchend',e=>{if(!tracking||!e.changedTouches?.length)return;tracking=false;const dx=e.changedTouches[0].clientX-sx,dy=e.changedTouches[0].clientY-sy;if(Math.abs(dx)<60||Math.abs(dx)<=Math.abs(dy)*1.25)return;if(dx>0)setSelected(addDays(selectedDate,-1),-1);else if(selectedDate<latestDate)setSelected(addDays(selectedDate,1),1);},{passive:true});}
+
+function enableMobileCoachExpand(){
+  const isMobile=()=>window.matchMedia('(max-width:520px)').matches;
+  $$('.coachBox').forEach(box=>{
+    box.setAttribute('aria-expanded','false');
+    const toggle=()=>{
+      if(!isMobile())return;
+      const on=box.classList.toggle('mobile-expanded');
+      box.setAttribute('aria-expanded',String(on));
+      if(on){
+        $$('.coachBox').filter(x=>x!==box).forEach(x=>{x.classList.remove('mobile-expanded');x.setAttribute('aria-expanded','false');});
+      }
+    };
+    box.addEventListener('click',toggle);
+    box.addEventListener('keydown',e=>{if((e.key==='Enter'||e.key===' ')&&isMobile()){e.preventDefault();toggle();}});
+  });
+  const conclusion=$('.coachConclusion');
+  if(conclusion){
+    conclusion.setAttribute('role','button');conclusion.setAttribute('tabindex','0');conclusion.setAttribute('aria-expanded','false');
+    const toggle=()=>{if(!isMobile())return;const on=conclusion.classList.toggle('mobile-expanded');conclusion.setAttribute('aria-expanded',String(on));};
+    conclusion.addEventListener('click',toggle);
+    conclusion.addEventListener('keydown',e=>{if((e.key==='Enter'||e.key===' ')&&isMobile()){e.preventDefault();toggle();}});
+  }
+  window.addEventListener('resize',()=>{if(!isMobile()){$$('.coachBox').forEach(x=>{x.classList.remove('mobile-expanded');x.setAttribute('aria-expanded','false')});if(conclusion){conclusion.classList.remove('mobile-expanded');conclusion.setAttribute('aria-expanded','false');}}});
+}
+$$('[data-scale]').forEach(b=>b.onclick=()=>{trendScale=b.dataset.scale;$$('[data-scale]').forEach(x=>x.classList.toggle('active',x===b));trendWindow={start:0,end:0};renderHistory();});
+enableMobileCoachExpand();
+enableDateSwipe($('#page-overview'));enableDateSwipe($('#page-physique'));
+$$('[data-tab]').forEach(b=>b.onclick=()=>{activeTab=b.dataset.tab;$$('[data-tab]').forEach(x=>x.classList.toggle('active',x===b));$$('.page').forEach(p=>p.classList.toggle('active',p.id==='page-'+activeTab));$('.dateNav').classList.toggle('hidden',activeTab==='history');if(activeTab==='history')renderHistory();history.replaceState(null,'','#'+activeTab);window.scrollTo({top:0,behavior:'smooth'})});$$('[data-view]').forEach(b=>b.onclick=()=>{currentView=b.dataset.view;$$('[data-view]').forEach(x=>x.classList.toggle('active',x===b));if(snap)renderPhysique();else loadTargetImage_(currentView)});$('#prevDay').onclick=()=>setSelected(addDays(selectedDate,-1),-1);$('#nextDay').onclick=()=>{if(selectedDate<latestDate)setSelected(addDays(selectedDate,1),1)};$('#latestDate').onclick=()=>setSelected(latestDate);$('#dateMain').onclick=()=>{const p=$('#datePicker');p.showPicker?p.showPicker():p.click()};$('#datePicker').onchange=e=>setSelected(e.target.value);$('#syncControl').onclick=()=>{if(!$('#syncControl').disabled)load(selectedDate)};let lastResumeRefresh=Date.now();function refreshOnResume_(){const now=Date.now();if(document.hidden||now-lastResumeRefresh<10000||$('#syncControl').disabled)return;lastResumeRefresh=now;load(selectedDate||null)}window.addEventListener('focus',refreshOnResume_);window.addEventListener('pageshow',e=>{if(e.persisted)refreshOnResume_()});document.addEventListener('visibilitychange',()=>{if(!document.hidden)refreshOnResume_()});const h=location.hash.replace('#','');if(['overview','physique','history'].includes(h)){$(`[data-tab="${h}"]`)?.click()}load(null);
+})();
+</script>
+</body>
+</html>

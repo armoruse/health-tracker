@@ -1,0 +1,14 @@
+{
+  "name": "body-xunji-bridge",
+  "version": "2.2.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "check": "node --check src/index.js && node test/queue-write.test.mjs && wrangler deploy --dry-run",
+    "preview": "wrangler versions upload --preview-alias preview"
+  },
+  "devDependencies": {
+    "@types/node": "^26.4.0",
+    "wrangler": "4.127.1"
+  }
+}
