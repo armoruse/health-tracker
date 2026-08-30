@@ -1,8 +1,10 @@
 /**
- * BODY × 訓記 Bridge v2.2.0 (Queue training writes + canonical source)
+ * BODY × 訓記 Bridge v2.3.0 (Native movement catalog + resolver)
  */
 
 const DEFAULT_GAS_URL = "https://script.google.com/macros/s/AKfycbyygSNrQ5YbEjHIEQq8kIR2UQVepnTKBj4VIcNTkgcwX6ioaAy7cpL7V29IGJtOQ4ui/exec";
+
+import { normalizeCatalog } from "./movement-resolver.js";
 
 export default {
   async fetch(request, env, ctx) {
@@ -33,9 +35,13 @@ export default {
         return json({
           success: true,
           service: "BODY × 訓記 Bridge v2",
-          version: "2.2.0",
+          version: "2.3.0",
           modules: {
             training: { read: "POST /training/read", write: "POST /training/write" },
+            movements: {
+              catalog: "POST /movements/catalog",
+              aliases: ["POST /movement/catalog", "POST /xunji/movements"]
+            },
             templates: { sync: "POST /templates/sync", mutate: "POST /templates/mutate" },
             food: {
               query: "POST /food/query",
@@ -65,6 +71,31 @@ export default {
       }
 
       // 3. Training Endpoints
+      if (["/movements/catalog", "/movement/catalog", "/xunji/movements"].includes(url.pathname) && request.method === "POST") {
+        const apiKey = env.XUNJI_TRAIN_API_KEY || env.XUNJI_API_KEY;
+        if (!apiKey) return json({ success: false, error: "Missing Cloudflare Secret: XUNJI_TRAIN_API_KEY" }, 500);
+
+        let body = {};
+        const requestText = await request.text();
+        if (requestText.trim()) body = JSON.parse(requestText);
+
+        const upstream = await fetch("https://trains.xunjiapp.cn/api_movement_catalog_for_llm_v2", {
+          method: "POST",
+          headers: { "Content-Type": "application/json", Authorization: `Bearer ${apiKey}` },
+          body: JSON.stringify(body)
+        });
+
+        const resText = await upstream.text();
+        let resData;
+        try { resData = JSON.parse(resText); } catch { resData = { raw: resText }; }
+        return json({
+          ok: upstream.ok,
+          status: upstream.status,
+          data: resData,
+          normalized: upstream.ok ? normalizeMovementCatalog(resData) : []
+        }, upstream.ok ? 200 : upstream.status);
+      }
+
       if ((url.pathname === "/training/read" || url.pathname === "/xunji/read") && request.method === "POST") {
         const apiKey = env.XUNJI_TRAIN_API_KEY || env.XUNJI_API_KEY;
         if (!apiKey) return json({ success: false, error: "Missing Cloudflare Secret: XUNJI_TRAIN_API_KEY" }, 500);
@@ -426,3 +457,5 @@ function getTodayDatestr() {
   const day = String(d.getDate()).padStart(2, "0");
   return `${y}-${m}-${day}`;
 }
+
+export const normalizeMovementCatalog = normalizeCatalog;

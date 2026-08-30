@@ -1,10 +1,11 @@
 {
   "name": "body-xunji-bridge",
-  "version": "2.2.0",
+  "version": "2.3.0",
   "private": true,
   "type": "module",
   "scripts": {
-    "check": "node --check src/index.js && node test/queue-write.test.mjs && node test/queue-read-training.test.mjs && wrangler deploy --dry-run",
+    "check": "node --check src/index.js && node --check src/movement-resolver.js && node test/queue-write.test.mjs && node test/queue-read-training.test.mjs && node test/movement-catalog.test.mjs && node test/movement-resolver.test.mjs && wrangler deploy --dry-run",
+    "rebind:native": "node scripts/rebind-native-movements.mjs",
     "preview": "wrangler versions upload --preview-alias preview"
   },
   "devDependencies": {
