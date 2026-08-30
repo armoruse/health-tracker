@@ -1,0 +1,52 @@
+{
+  "schemaVersion": 1,
+  "verifiedAt": "2026-08-30T15:07:31+08:00",
+  "timezone": "Asia/Taipei",
+  "repository": "armoruse/health-tracker",
+  "sourceOfTruth": {
+    "codeAndChangeLog": "GitHub repository",
+    "healthData": "Google Sheet",
+    "apiCredentials": "Cloudflare encrypted secrets"
+  },
+  "bodyGo": {
+    "source": "cloudflare-worker/",
+    "productionUrl": "https://body-go-app.armoruse.workers.dev/",
+    "productionVersion": "25.6",
+    "previewUrl": "https://preview-body-go-app.armoruse.workers.dev/",
+    "previewVersion": "25.8"
+  },
+  "xunjiBridge": {
+    "source": "xunji-bridge/",
+    "productionUrl": "https://body-xunji-bridge.armoruse.workers.dev/",
+    "productionVersion": "2.1.1",
+    "previewUrl": "https://preview-body-xunji-bridge.armoruse.workers.dev/",
+    "previewVersion": "2.2.0",
+    "templateRevision": 28,
+    "cloudflareSecretNamesVerified": true,
+    "secretValuesStoredInGit": false
+  },
+  "appsScript": {
+    "source": "apps-script/",
+    "version": "V21.1-fast",
+    "queue": "XunjiQueue",
+    "enqueueEndpointAvailable": false
+  },
+  "mobileTemplateEditing": {
+    "status": "not_connected",
+    "tokenValid": true,
+    "missingCapabilities": [
+      "authenticated mobile action or connector",
+      "authenticated queue enqueue endpoint",
+      "preview-to-production approval for bridge 2.2.0"
+    ]
+  },
+  "activeTemplates": [
+    { "name": "Upper A 胸部主訓", "version": 5 },
+    { "name": "Upper B 背部主訓", "version": 5 },
+    { "name": "Lower A 股四頭主訓", "version": 5 },
+    { "name": "Lower B 臀腿後側", "version": 3 },
+    { "name": "居家恢復伸展", "version": 2 },
+    { "name": "睡前舒緩拉伸", "version": 1 }
+  ],
+  "productionDeploymentApproved": false
+}
