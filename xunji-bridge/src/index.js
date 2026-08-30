@@ -336,7 +336,7 @@ async function processQueueInternal(env) {
         });
         const resData = await upstream.json().catch(() => ({}));
         resultJson = JSON.stringify(resData);
-        if (upstream.ok && resData.ok) {
+        if (upstream.ok && (resData.ok === true || Array.isArray(resData.res?.trains))) {
           finalStatus = "success";
         } else {
           finalStatus = "error";
