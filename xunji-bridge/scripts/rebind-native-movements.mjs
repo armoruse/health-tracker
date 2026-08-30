@@ -1,124 +1,125 @@
 const BRIDGE_URL = (process.env.BRIDGE_URL || "https://body-xunji-bridge.armoruse.workers.dev").replace(/\/$/, "");
 const APPLY = process.argv.includes("--apply");
-const TEMPLATE_IDS = [
-  "896988171949717",
-  "896452342598053",
-  "894662602360569",
-  "898294457839639",
-  "897112973978855",
-  "897173877255151"
-];
+const OFFICIAL_NAMES_URL = "https://raw.githubusercontent.com/Foveluy/Xunji-movements/main/README.md";
 
-const MANUAL = Object.freeze({
-  "宽距高位下拉": { official: "宽距下拉", key: "宽距下拉", method: "supported_variant", confidence: 0.97 },
-  "哑铃保加利亚蹲": { official: "保加利亚蹲", key: "保加利亚蹲", method: "supported_variant", confidence: 0.94 },
-  "自重保加利亚蹲": { official: "保加利亚蹲", key: "保加利亚蹲", method: "supported_variant", confidence: 0.94 },
-  "悍马机卷腹": { official: "器械卷腹", key: "器械卷腹", method: "supported_variant", confidence: 0.92 },
-  "最伟大拉伸": { official: "最伟大拉伸", key: "f_s_f138", method: "known_key", confidence: 1 },
-  "单腿跪姿股四头肌拉伸": { official: "单腿跪姿股四头肌拉伸", key: "f_s_f14", method: "known_key", confidence: 1 },
-  "坐姿单腿腘绳肌拉伸": { official: "坐姿腿拉伸", key: "06921301-Seated-Single-Leg-Hamstring-Stretch", method: "known_key_supported_variant", confidence: 0.98 },
-  "台阶式小腿拉伸": { official: "站姿腓肠肌拉伸", key: "f_s_f205", method: "known_key_supported_variant", confidence: 0.93 },
-  "胸椎拉伸和打开": { official: "胸椎拉伸和打开", key: "thoracicSpineStretchAndOpening", method: "known_key", confidence: 1 }
+const PLANS = Object.freeze({
+  "896988171949717": ["杠铃卧推", "上斜杠铃卧推", "哑铃卧推", "拉杆坐姿划船(宽握)", "哑铃推肩", "侧平举", "面拉", "直杆绳索下压", "绳索Pallof推"],
+  "896452342598053": ["宽距高位下拉", "窄距下拉", "拉杆坐姿划船(窄握)", "拉杆坐姿划船(宽握)", "绳索肩外旋", "哑铃弯举", "侧平举", "悍马机卷腹"],
+  "894662602360569": ["腿举", "坐姿腿屈伸", "哑铃保加利亚蹲", "坐姿髋外展", "坐姿髋内收", "坐姿器械提踵", "绳索Pallof推"],
+  "898294457839639": ["深蹲跳", "悍马机臀冲", "坐姿腿弯举", "腿举", "坐姿髋外展", "坐姿器械提踵"],
+  "897112973978855": ["9090旋转", "最伟大拉伸", "单腿跪姿股四头肌拉伸", "坐姿单腿腘绳肌拉伸", "台阶式小腿拉伸", "胸椎拉伸和打开", "肩内外旋动态拉伸", "下犬式"],
+  "897173877255151": ["深蹲跳", "自重保加利亚蹲", "单腿地面提踵", "自重臀冲", "死虫", "哥本哈根屈膝侧平板支撑", "肩胛屈伸", "俯卧撑"]
 });
 
-const UNRESOLVED = new Set([
-  "绳索Pallof推", "绳索肩外旋", "悍马机臀冲", "9090旋转", "下犬式",
-  "单腿地面提踵", "自重臀冲", "死虫", "哥本哈根屈膝侧平板支撑", "肩胛屈伸"
-]);
+const NOTES = Object.freeze({
+  "896988171949717": [["warmup"], null, "單手重量", null, null, null, null, null, "左右各做"],
+  "896452342598053": [null, null, null, null, "左右各做", null, null, null],
+  "894662602360569": [null, ["warmup"], "左右各做", null, null, null, "左右各做"],
+  "898294457839639": [null, null, ["warmup"], null, null, null],
+  "897112973978855": ["左右各做", "左右各做", "左右各做", "左右各做", "左右各做", null, "左右各做", null],
+  "897173877255151": [null, "左右各做", "左右各做", null, "左右各做", "左右各做", null, null]
+});
 
-const syncBefore = await post("/templates/sync", { cursor: 0, include_content: true });
+const syncBefore = await post("/templates/sync", { cursor: 0, limit: 15, include_content: true });
 const beforeRevision = Number(syncBefore.data.current_revision);
 const templates = latestTemplates(syncBefore.data.changes);
-const selected = TEMPLATE_IDS.map(id => templates.get(id));
-if (selected.some(template => !template)) throw new Error("One or more target templates are missing from TEMPLATE_SYNC");
-
 const catalogResponse = await post("/movements/catalog", {});
-const catalog = catalogResponse.normalized || [];
-const catalogNames = new Set(catalog.map(item => item.name));
+const catalogNames = new Set((catalogResponse.normalized || []).map(item => item.name));
+const officialNames = await fetchOfficialNames();
 const mappings = [];
 const upserts = [];
 const prescriptions = new Map();
 
-for (const template of selected) {
-  prescriptions.set(template.template_id, template.movement.map(item => structuredClone(item.sets || [])));
-  const movement = template.movement.map(item => {
-    const source = item.label || item.name;
-    let match = MANUAL[source];
-    if (!match && catalogNames.has(source)) {
-      match = { official: source, key: source, method: "catalog_name_exact", confidence: 1 };
-    }
-    if (!match && !UNRESOLVED.has(source)) {
-      throw new Error(`Unexpected unresolved movement: ${source}`);
-    }
+for (const [templateId, officialMovementNames] of Object.entries(PLANS)) {
+  const template = templates.get(templateId);
+  if (!template) throw new Error(`Target template is missing: ${templateId}`);
+  if (template.movement.length !== officialMovementNames.length) throw new Error(`Movement count mismatch for ${template.name}`);
+  if (officialMovementNames.length > 15) throw new Error(`Movement limit exceeded for ${template.name}`);
 
+  const movements = officialMovementNames.map((officialName, index) => {
+    if (!officialNames.has(officialName)) throw new Error(`Not in official movement list: ${officialName}`);
+    const source = template.movement[index];
+    const sets = structuredClone(source.sets || []);
+    if (sets.length > 20) throw new Error(`Set limit exceeded for ${template.name}: ${officialName}`);
     mappings.push({
-      template_id: template.template_id,
+      template_id: templateId,
       template: template.name,
-      original: source,
-      official: match?.official || null,
-      key: match?.key || null,
-      method: match?.method || "unresolved",
-      confidence: match?.confidence || 0
+      original: source.label || source.name || source.key,
+      official: officialName,
+      key: null,
+      method: catalogNames.has(officialName) ? "catalog_name_exact" : "official_public_name_exact",
+      confidence: 1
     });
-
-    if (!match) return { name: item.name || source, label: item.label || source, sets: structuredClone(item.sets || []) };
-    return { key: match.key, label: match.official, sets: structuredClone(item.sets || []) };
+    return { name: officialName, sets };
   });
 
-  upserts.push({
-    client_id: `body-native-${template.template_id}-20260831`,
-    template_id: template.template_id,
-    base_version: template.version,
-    name: template.name,
-    color: template.color || "",
-    order: template.order,
-    folder_id: template.folder_id,
-    movement,
-    rules: template.rules || {}
-  });
+  prescriptions.set(templateId, movements.map(item => structuredClone(item.sets)));
+  upserts.push({ template_id: templateId, base_version: template.version, name: template.name, color: template.color || "", movements });
 }
 
-const summary = {
-  apply: APPLY,
-  bridge: BRIDGE_URL,
-  before_revision: beforeRevision,
-  total_movements: mappings.length,
-  native_bindings: mappings.filter(item => item.key).length,
-  unresolved: mappings.filter(item => !item.key).length,
-  mappings
-};
+if (templates.size > 14 || upserts.length > 14) throw new Error("Template limit exceeded");
 
+const summary = { apply: APPLY, before_revision: beforeRevision, total_movements: mappings.length, official_name_matches: mappings.length, unresolved: 0, mappings };
 if (!APPLY) {
   console.log(JSON.stringify(summary, null, 2));
   process.exit(0);
 }
 
-const applied = [];
-for (let index = 0; index < upserts.length; index++) {
-  if (index > 0) await sleep(16_000);
-  const upsert = upserts[index];
-  const response = await post("/templates/mutate", {
-    confirmed: true,
-    mutation_id: `body-native-${upsert.template_id}-${Date.now()}`,
-    upserts: [upsert],
-    deletes: []
-  });
-  if (response.data?.success === false) throw new Error(`Mutation failed for ${upsert.template_id}: ${response.data.res || "unknown"}`);
-  applied.push(response.data?.applied?.[0] || { template_id: upsert.template_id });
+const alreadyNative = Object.entries(PLANS).every(([templateId, names]) => {
+  const template = templates.get(templateId);
+  return template?.movement?.every((item, index) => item.key && item.key !== item.label && item.label === names[index]);
+});
+
+let resolvedSync = syncBefore;
+if (!alreadyNative) {
+  const mutationId = process.env.MUTATION_ID || `body-native-public-rev-${beforeRevision}`;
+  const mutation = await post("/templates/mutate", { confirmed: true, mutation_id: mutationId, upserts, deletes: [] });
+  if (mutation.data?.success === false) throw new Error(`Mutation failed: ${mutation.data.res || "unknown"}`);
+  resolvedSync = await post("/templates/sync", { cursor: 0, limit: 15, include_content: true });
 }
 
-await sleep(16_000);
-const syncAfter = await post("/templates/sync", { cursor: 0, include_content: true });
+const resolvedTemplates = latestTemplates(resolvedSync.data.changes);
+const nativeUpserts = Object.entries(PLANS).map(([templateId]) => {
+  const template = resolvedTemplates.get(templateId);
+  const movement = structuredClone(template.movement);
+  movement.forEach((item, index) => applyNotes(item.sets || [], NOTES[templateId]?.[index]));
+  return {
+    template_id: templateId,
+    base_version: template.version,
+    name: template.name,
+    color: template.color || "",
+    movement,
+    rules: template.rules || {}
+  };
+});
+const notesMutation = await post("/templates/mutate", {
+  confirmed: true,
+  mutation_id: `body-native-notes-rev-${Number(resolvedSync.data.current_revision)}`,
+  upserts: nativeUpserts,
+  deletes: []
+});
+if (notesMutation.data?.success === false) throw new Error(`Notes mutation failed: ${notesMutation.data.res || "unknown"}`);
+
+const syncAfter = await post("/templates/sync", { cursor: 0, limit: 15, include_content: true });
 const afterRevision = Number(syncAfter.data.current_revision);
 const verified = latestTemplates(syncAfter.data.changes);
-for (const id of TEMPLATE_IDS) {
-  const template = verified.get(id);
-  if (!template) throw new Error(`Template missing after mutation: ${id}`);
-  const beforeSets = prescriptions.get(id);
-  if (template.movement.length !== beforeSets.length) throw new Error(`Movement count changed for ${id}`);
+let nativeBindings = 0;
+for (const [templateId, officialMovementNames] of Object.entries(PLANS)) {
+  const template = verified.get(templateId);
+  if (!template) throw new Error(`Template missing after mutation: ${templateId}`);
+  if (template.movement.length !== officialMovementNames.length) throw new Error(`Movement count changed for ${templateId}`);
   template.movement.forEach((item, index) => {
-    if (JSON.stringify(item.sets || []) !== JSON.stringify(beforeSets[index])) {
-      throw new Error(`Prescription changed for ${id} movement ${index + 1}`);
+    if (JSON.stringify(prescriptionSignature(item.sets || [])) !== JSON.stringify(prescriptionSignature(prescriptions.get(templateId)[index]))) {
+      throw new Error(`Prescription changed for ${templateId} movement ${index + 1}`);
+    }
+    if (!item.key || item.key === item.label || item.key === item.name) throw new Error(`Native identity was not resolved for ${templateId} movement ${index + 1}`);
+    verifyNotes(item.sets || [], NOTES[templateId]?.[index], templateId, index);
+    nativeBindings++;
+    const mapping = mappings.find(entry => entry.template_id === templateId && entry.official === officialMovementNames[index] && entry.key == null);
+    if (mapping) {
+      mapping.key = String(item.key);
+      mapping.official = item.label || item.name || mapping.official;
+      mapping.server_resolved = true;
     }
   });
 }
@@ -127,8 +128,9 @@ if (afterRevision <= beforeRevision) throw new Error("Template revision did not 
 console.log(JSON.stringify({
   ...summary,
   after_revision: afterRevision,
-  applied,
-  templates: TEMPLATE_IDS.map(id => {
+  native_bindings: nativeBindings,
+  mappings,
+  templates: Object.keys(PLANS).map(id => {
     const template = verified.get(id);
     return { template_id: id, name: template.name, version: template.version, movements: template.movement.length };
   })
@@ -144,17 +146,50 @@ function latestTemplates(changes) {
   return map;
 }
 
+function prescriptionSignature(sets) {
+  return sets.map(set => ({
+    weight: String(set.weight ?? set.weight_kg ?? ""),
+    reps: String(set.reps ?? ""),
+    time: Number(set.time ?? set.duration_s ?? 0)
+  }));
+}
+
+function applyNotes(sets, noteSpec) {
+  if (typeof noteSpec === "string") {
+    sets.forEach(set => { set.comment = noteSpec; });
+  } else if (Array.isArray(noteSpec)) {
+    noteSpec.forEach((note, index) => {
+      if (note != null && sets[index]) sets[index].comment = note;
+    });
+  }
+}
+
+function verifyNotes(sets, noteSpec, templateId, movementIndex) {
+  if (typeof noteSpec === "string" && sets.some(set => set.comment !== noteSpec)) {
+    throw new Error(`Movement note changed for ${templateId} movement ${movementIndex + 1}`);
+  }
+  if (Array.isArray(noteSpec)) {
+    noteSpec.forEach((note, setIndex) => {
+      if (note != null && sets[setIndex]?.comment !== note) throw new Error(`Set note changed for ${templateId} movement ${movementIndex + 1}`);
+    });
+  }
+}
+
+async function fetchOfficialNames() {
+  const response = await fetch(OFFICIAL_NAMES_URL);
+  if (!response.ok) throw new Error(`Official movement list failed (${response.status})`);
+  const names = new Set();
+  for (const line of (await response.text()).split(/\r?\n/)) {
+    const match = line.match(/^\s*\|?\s*\d+\s*\|\s*(.+?)\s*\|?\s*$/);
+    if (match) names.add(match[1]);
+  }
+  if (names.size < 1000) throw new Error("Official movement list is incomplete");
+  return names;
+}
+
 async function post(path, body) {
-  const response = await fetch(`${BRIDGE_URL}${path}`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(body)
-  });
+  const response = await fetch(`${BRIDGE_URL}${path}`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
   const data = await response.json();
   if (!response.ok || data.ok === false) throw new Error(`${path} failed (${response.status}): ${data.error || data.data?.res || "unknown"}`);
   return data;
-}
-
-function sleep(ms) {
-  return new Promise(resolve => setTimeout(resolve, ms));
 }

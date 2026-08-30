@@ -50,8 +50,9 @@ const original = {
 };
 const before = structuredClone(original.sets);
 const bound = bindNativeMovement(original, exact).movement;
-assert.equal(bound.key, "barbell-bench");
-assert.equal("name" in bound, false);
+assert.equal(bound.key, undefined);
+assert.equal(bound.name, "杠铃卧推");
+assert.equal("label" in bound, false);
 assert.deepEqual(bound.sets, before);
 assert.deepEqual(original.sets, before);
 

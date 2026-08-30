@@ -15,8 +15,10 @@ const fixture = {
 const normalized = normalizeMovementCatalog(fixture);
 assert.equal(normalized.length, 2);
 assert.deepEqual(normalized[0], {
-  identity: "杠铃卧推",
-  identity_field: "name",
+  identity: null,
+  identity_field: null,
+  native_identity_available: false,
+  official_name: "杠铃卧推",
   name: "杠铃卧推",
   label: "杠铃卧推",
   aliases: ["平板杠铃卧推"],
@@ -50,7 +52,8 @@ try {
   const body = await response.json();
   assert.equal(response.status, 200);
   assert.deepEqual(upstreamBody, {});
-  assert.equal(body.normalized[0].identity, "杠铃卧推");
+  assert.equal(body.normalized[0].identity, null);
+  assert.equal(body.normalized[0].official_name, "杠铃卧推");
 
   const missingKey = await worker.fetch(
     new Request("https://bridge.test/movement/catalog", { method: "POST", body: "{}" }),

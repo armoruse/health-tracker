@@ -1,5 +1,5 @@
 /**
- * BODY × 訓記 Bridge v2.3.0 (Native movement catalog + resolver)
+ * BODY × 訓記 Bridge v2.4.0 (Official movement-name catalog + server-side native resolver)
  */
 
 const DEFAULT_GAS_URL = "https://script.google.com/macros/s/AKfycbyygSNrQ5YbEjHIEQq8kIR2UQVepnTKBj4VIcNTkgcwX6ioaAy7cpL7V29IGJtOQ4ui/exec";
@@ -35,7 +35,7 @@ export default {
         return json({
           success: true,
           service: "BODY × 訓記 Bridge v2",
-          version: "2.3.0",
+          version: "2.4.0",
           modules: {
             training: { read: "POST /training/read", write: "POST /training/write" },
             movements: {
@@ -151,8 +151,8 @@ export default {
 
         const body = await request.json();
         const payload = {
-          schema_version: "agent_personal_templates_v1",
           cursor: Number(body.cursor) || 0,
+          limit: 15,
           include_content: body.include_content !== false
         };
 
@@ -178,7 +178,6 @@ export default {
         }
 
         const payload = {
-          schema_version: "agent_personal_templates_v1",
           mutation_id: body.mutation_id || crypto.randomUUID(),
           confirmed: true,
           folder_update: body.folder_update,
@@ -311,8 +310,8 @@ async function processQueueInternal(env) {
           method: "POST",
           headers: { "Content-Type": "application/json", Authorization: `Bearer ${apiKey}` },
           body: JSON.stringify({
-            schema_version: "agent_personal_templates_v1",
             cursor: payload.cursor !== undefined ? payload.cursor : 0,
+            limit: 15,
             include_content: payload.include_content !== false
           })
         });
@@ -335,7 +334,6 @@ async function processQueueInternal(env) {
             method: "POST",
             headers: { "Content-Type": "application/json", Authorization: `Bearer ${apiKey}` },
             body: JSON.stringify({
-              schema_version: "agent_personal_templates_v1",
               mutation_id: payload.mutation_id || crypto.randomUUID(),
               confirmed: true,
               ...payload

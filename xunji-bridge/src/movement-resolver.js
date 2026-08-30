@@ -27,9 +27,11 @@ export function normalizeCatalog(payload) {
     const aliases = Array.isArray(item.aliases) ? item.aliases.filter(Boolean).map(String) : [];
     const explicitIdentity = item.key ?? item.id ?? item.movement_key ?? item.movement_id;
     return {
-      identity: explicitIdentity == null ? String(item.name) : String(explicitIdentity),
-      identity_field: explicitIdentity == null ? "name" :
+      identity: explicitIdentity == null ? null : String(explicitIdentity),
+      identity_field: explicitIdentity == null ? null :
         (item.key != null ? "key" : item.id != null ? "id" : item.movement_key != null ? "movement_key" : "movement_id"),
+      native_identity_available: explicitIdentity != null,
+      official_name: String(item.name),
       name: String(item.name),
       label: item.label == null ? String(item.name) : String(item.label),
       aliases,
@@ -103,12 +105,21 @@ export function resolveNativeMovement(input, catalog, options = {}) {
 
 export function bindNativeMovement(templateMovement, resolution) {
   if (!resolution?.matched) return { movement: structuredClone(templateMovement), resolution };
-  const { name: _name, key: _key, id: _id, movement_key: _movementKey, movement_id: _movementId, ...prescription } = structuredClone(templateMovement);
+  const { name: _name, label: _label, key: _key, id: _id, movement_key: _movementKey, movement_id: _movementId, ...prescription } = structuredClone(templateMovement);
+  if (resolution.method === "key_exact" && resolution.movement.identity) {
+    return {
+      movement: {
+        ...prescription,
+        label: resolution.movement.label,
+        key: resolution.movement.identity
+      },
+      resolution
+    };
+  }
   return {
     movement: {
       ...prescription,
-      label: resolution.movement.label,
-      key: resolution.movement.identity
+      name: resolution.movement.name
     },
     resolution
   };
@@ -131,6 +142,7 @@ function ambiguous(candidates, method) {
 function candidateView(item, score) {
   return {
     identity: item.identity,
+    official_name: item.name,
     name: item.name,
     label: item.label,
     equipment: item.equipment,
