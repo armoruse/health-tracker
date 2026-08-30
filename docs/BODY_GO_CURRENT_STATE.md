@@ -4,6 +4,8 @@
 
 這份文件是不同電腦、手機與新對話接手 BODY GO! 時的第一入口。GitHub 是程式與更新紀錄的唯一來源；Google Sheet 是健康、飲食、體態與訓練資料的正式資料庫；Cloudflare 保存 Worker 與加密 API secrets。
 
+手機端可直接使用的最高指導原則：[`MOBILE_MASTER_INSTRUCTIONS.md`](MOBILE_MASTER_INSTRUCTIONS.md)。Cloudflare Preview 唯讀鏡像：`https://preview-body-go-app.armoruse.workers.dev/mobile-master-instructions.txt`。
+
 ## 正式來源
 
 | 元件 | 唯一原始碼 | Production | Preview | 已驗證版本 |

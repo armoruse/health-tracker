@@ -1,0 +1,28 @@
+{
+  "schemaVersion": 1,
+  "verifiedAt": "2026-08-30T15:07:31+08:00",
+  "timezone": "Asia/Taipei",
+  "repository": "armoruse/health-tracker",
+  "bodyGo": {
+    "productionUrl": "https://body-go-app.armoruse.workers.dev/",
+    "productionVersion": "25.6",
+    "previewUrl": "https://preview-body-go-app.armoruse.workers.dev/",
+    "previewVersion": "25.8"
+  },
+  "xunjiBridge": {
+    "productionUrl": "https://body-xunji-bridge.armoruse.workers.dev/",
+    "productionVersion": "2.1.1",
+    "previewUrl": "https://preview-body-xunji-bridge.armoruse.workers.dev/",
+    "previewVersion": "2.2.0",
+    "templateRevision": 28,
+    "tokenVerified": true
+  },
+  "appsScript": {
+    "version": "V21.1-fast",
+    "queue": "XunjiQueue",
+    "enqueueEndpointAvailable": false
+  },
+  "mobileTemplateEditing": "not_connected",
+  "productionDeploymentApproved": false,
+  "mobileInstructions": "https://preview-body-go-app.armoruse.workers.dev/mobile-master-instructions.txt"
+}

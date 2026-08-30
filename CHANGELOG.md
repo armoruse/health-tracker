@@ -3,6 +3,7 @@
 ## 2026-08-30
 
 - 建立跨裝置雲端狀態文件與機器可讀狀態檔。
+- 建立手機端最高指導原則，並提供 Cloudflare Preview 唯讀鏡像。
 - 確認訓記 API token 可透過 Cloudflare Worker 使用，Production 與 Preview 均能唯讀同步模板。
 - 定位手機無法修改模板的原因：手機沒有 Action/Connector，且 Apps Script 尚無安全的 `queue_enqueue` 入口。
 - 確認訓記模板 revision 28；四個重訓模板、居家恢復伸展、睡前舒緩拉伸共 6 個正式模板。
