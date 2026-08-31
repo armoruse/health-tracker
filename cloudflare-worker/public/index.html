@@ -403,16 +403,16 @@ function addDays(v,delta){const [y,m,d]=v.split('-').map(Number);const dt=new Da
 function bfRange(s){let a=n(s?.goalBodyFatMin),b=n(s?.goalBodyFatMax);if(a===null||b===null||a<3||b>60||a>b){a=15;b=16}return [a,b]}
 let snap=null, selectedDate=null, latestDate=null, currentView='front', activeTab='overview', physiqueCompareMode='target';
 const CURRENT_BODY_HISTORY=[
- {date:'2026-08-17',assets:{front:'https://body-go-app.armoruse.workers.dev/assets/physique/2026-08-17-avatar-front.png',side:'https://body-go-app.armoruse.workers.dev/assets/physique/2026-08-17-avatar-side.png',back:'https://body-go-app.armoruse.workers.dev/assets/physique/2026-08-17-avatar-back.png'}},
- {date:'2026-08-24',assets:{front:'https://body-go-app.armoruse.workers.dev/assets/physique/2026-08-24-front-knee.jpg',side:'https://body-go-app.armoruse.workers.dev/assets/physique/2026-08-24-side-knee.png',back:'https://body-go-app.armoruse.workers.dev/assets/physique/2026-08-24-back-knee.jpg'}}
+ {date:'2026-08-17',assets:{front:'/assets/current-anime-front.png',side:'/assets/current-anime-side.png',back:'/assets/current-anime-back.png'}},
+ {date:'2026-08-24',assets:{front:'/assets/current-display-front.png',side:'/assets/current-display-side.png',back:'/assets/current-display-back.png'}}
 ];
 const BODY_GALLERY=[
- {date:'2026-08-17',view:'正面',src:'https://body-go-app.armoruse.workers.dev/assets/physique/2026-08-17-avatar-front.png',note:'動畫風去頭去背・頸部至膝蓋'},
- {date:'2026-08-17',view:'側面',src:'https://body-go-app.armoruse.workers.dev/assets/physique/2026-08-17-avatar-side.png',note:'動畫風去頭去背・頸部至膝蓋'},
- {date:'2026-08-17',view:'背面',src:'https://body-go-app.armoruse.workers.dev/assets/physique/2026-08-17-avatar-back.png',note:'動畫風去頭去背・頸部至膝蓋'},
- {date:'2026-08-24',view:'正面',src:'https://body-go-app.armoruse.workers.dev/assets/physique/2026-08-24-front-knee.jpg',note:'頸部至膝蓋・正式體態紀錄'},
- {date:'2026-08-24',view:'側面',src:'https://body-go-app.armoruse.workers.dev/assets/physique/2026-08-24-side-knee.png',note:'頸部至膝蓋・正式體態紀錄'},
- {date:'2026-08-24',view:'背面',src:'https://body-go-app.armoruse.workers.dev/assets/physique/2026-08-24-back-knee.jpg',note:'頸部至膝蓋・正式體態紀錄'}
+ {date:'2026-08-17',view:'正面',src:'/assets/current-anime-front.png',note:'動畫風去頭去背・頸部至膝蓋'},
+ {date:'2026-08-17',view:'側面',src:'/assets/current-anime-side.png',note:'動畫風去頭去背・頸部至膝蓋'},
+ {date:'2026-08-17',view:'背面',src:'/assets/current-anime-back.png',note:'動畫風去頭去背・頸部至膝蓋'},
+ {date:'2026-08-24',view:'正面',src:'/assets/current-display-front.png',note:'頸部至膝蓋・正式體態紀錄'},
+ {date:'2026-08-24',view:'側面',src:'/assets/current-display-side.png',note:'頸部至膝蓋・正式體態紀錄'},
+ {date:'2026-08-24',view:'背面',src:'/assets/current-display-back.png',note:'頸部至膝蓋・正式體態紀錄'}
 ];
 let galleryIndex=4;
 function currentBodyRecordFor_(date,view){return [...CURRENT_BODY_HISTORY].reverse().find(r=>r.date<=date&&r.assets[view])||null;}
