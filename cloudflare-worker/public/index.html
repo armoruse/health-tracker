@@ -403,18 +403,22 @@ function addDays(v,delta){const [y,m,d]=v.split('-').map(Number);const dt=new Da
 function bfRange(s){let a=n(s?.goalBodyFatMin),b=n(s?.goalBodyFatMax);if(a===null||b===null||a<3||b>60||a>b){a=15;b=16}return [a,b]}
 let snap=null, selectedDate=null, latestDate=null, currentView='front', activeTab='overview', physiqueCompareMode='target';
 const CURRENT_BODY_HISTORY=[
- {date:'2026-08-17',assets:{front:'/assets/current-anime-front.png',side:'/assets/current-anime-side.png',back:'/assets/current-anime-back.png'}},
- {date:'2026-08-24',assets:{front:'/assets/current-photo-front.jpg',side:'/assets/current-photo-side.png',back:'/assets/current-photo-back.jpg'}}
+ {date:'2026-08-17',assets:{front:'/assets/physique-2026-08-17-anime-front.png',side:'/assets/physique-2026-08-17-anime-side.png',back:'/assets/physique-2026-08-17-anime-back.png'}},
+ {date:'2026-08-24',assets:{front:'/assets/current-photo-front.jpg',side:'/assets/current-photo-side.png',back:'/assets/current-photo-back.jpg'}},
+ {date:'2026-08-31',assets:{front:'/assets/current-anime-front.png?v=20260831',side:'/assets/current-anime-side.png?v=20260831',back:'/assets/current-anime-back.png?v=20260831'}}
 ];
 const BODY_GALLERY=[
- {date:'2026-08-17',view:'正面',src:'/assets/current-anime-front.png',note:'動畫風去頭去背・頸部至膝蓋'},
- {date:'2026-08-17',view:'側面',src:'/assets/current-anime-side.png',note:'動畫風去頭去背・頸部至膝蓋'},
- {date:'2026-08-17',view:'背面',src:'/assets/current-anime-back.png',note:'動畫風去頭去背・頸部至膝蓋'},
+ {date:'2026-08-17',view:'正面',src:'/assets/physique-2026-08-17-anime-front.png',note:'動畫風去頭去背・頸部至膝蓋'},
+ {date:'2026-08-17',view:'側面',src:'/assets/physique-2026-08-17-anime-side.png',note:'動畫風去頭去背・頸部至膝蓋'},
+ {date:'2026-08-17',view:'背面',src:'/assets/physique-2026-08-17-anime-back.png',note:'動畫風去頭去背・頸部至膝蓋'},
  {date:'2026-08-24',view:'正面',src:'/assets/current-photo-front.jpg',note:'頸部至膝蓋・正式體態紀錄'},
  {date:'2026-08-24',view:'側面',src:'/assets/current-photo-side.png',note:'頸部至膝蓋・正式體態紀錄'},
- {date:'2026-08-24',view:'背面',src:'/assets/current-photo-back.jpg',note:'頸部至膝蓋・正式體態紀錄'}
+ {date:'2026-08-24',view:'背面',src:'/assets/current-photo-back.jpg',note:'頸部至膝蓋・正式體態紀錄'},
+ {date:'2026-08-31',view:'正面',src:'/assets/current-anime-front.png?v=20260831',note:'動畫風去頭去背・頸部至膝蓋'},
+ {date:'2026-08-31',view:'側面',src:'/assets/current-anime-side.png?v=20260831',note:'動畫風去頭去背・頸部至膝蓋'},
+ {date:'2026-08-31',view:'背面',src:'/assets/current-anime-back.png?v=20260831',note:'動畫風去頭去背・頸部至膝蓋'}
 ];
-let galleryIndex=4;
+let galleryIndex=6;
 function currentBodyRecordFor_(date,view){return [...CURRENT_BODY_HISTORY].reverse().find(r=>r.date<=date&&r.assets[view])||null;}
 function previousBodyRecordFor_(record,view){return record?[...CURRENT_BODY_HISTORY].reverse().find(r=>r.date<record.date&&r.assets[view])||null:null;}
 
