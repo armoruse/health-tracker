@@ -594,7 +594,7 @@ function buildOpenApiSpec(origin) {
   });
 
   return {
-    openapi: "3.0.3",
+    openapi: "3.1.0",
     info: {
       title: "BODY Xunji Conversation API",
       version: "2.5.1",
@@ -754,17 +754,17 @@ function buildOpenApiSpec(origin) {
           type: "object",
           required: ["name"],
           properties: {
-            identity: { type: "string", nullable: true },
-            identity_field: { type: "string", nullable: true },
+            identity: { type: "string" },
+            identity_field: { type: "string" },
             native_identity_available: { type: "boolean" },
             official_name: { type: "string" },
             name: { type: "string" },
             label: { type: "string" },
             aliases: { type: "array", items: { type: "string" } },
-            equipment: { type: "string", nullable: true },
-            muscle: { type: "string", nullable: true },
-            category: { type: "string", nullable: true },
-            movement_type: { type: "string", nullable: true }
+            equipment: { type: "string" },
+            muscle: { type: "string" },
+            category: { type: "string" },
+            movement_type: { type: "string" }
           },
           additionalProperties: true
         },

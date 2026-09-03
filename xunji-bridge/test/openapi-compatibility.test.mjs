@@ -9,11 +9,13 @@ const raw = await response.text();
 assert.doesNotThrow(() => JSON.parse(raw), "OpenAPI response must be valid JSON");
 const spec = JSON.parse(raw);
 
-assert.equal(spec.openapi, "3.0.3");
+assert.equal(spec.openapi, "3.1.0");
 assert.equal(spec.servers?.[0]?.url, previewOrigin);
 assert.ok(spec.components?.schemas && !Array.isArray(spec.components.schemas));
 assert.ok(Object.keys(spec.components.schemas).length > 0);
 assert.deepEqual(spec.components.securitySchemes.bearerAuth, { type: "http", scheme: "bearer" });
+assert.deepEqual(spec.components.schemas.TrainingWriteRequest.properties.confirmed.enum, [true]);
+assert.deepEqual(spec.components.schemas.TemplateMutationRequest.properties.confirmed.enum, [true]);
 
 const operationIds = [];
 for (const pathItem of Object.values(spec.paths)) {
