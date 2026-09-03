@@ -1,5 +1,5 @@
 /**
- * BODY × 訓記 Bridge v2.4.0 (Official movement-name catalog + server-side native resolver)
+ * BODY × 訓記 Bridge v2.4.1 (Queue observability and writeback validation)
  */
 
 const DEFAULT_GAS_URL = "https://script.google.com/macros/s/AKfycbyygSNrQ5YbEjHIEQq8kIR2UQVepnTKBj4VIcNTkgcwX6ioaAy7cpL7V29IGJtOQ4ui/exec";
@@ -35,7 +35,7 @@ export default {
         return json({
           success: true,
           service: "BODY × 訓記 Bridge v2",
-          version: "2.4.0",
+          version: "2.4.1",
           modules: {
             training: { read: "POST /training/read", write: "POST /training/write" },
             movements: {
@@ -242,14 +242,17 @@ export default {
   },
 
   async scheduled(event, env, ctx) {
+    logInfo("cron_triggered", {
+      triggeredAt: new Date(event?.scheduledTime || Date.now()).toISOString(),
+      cron: event?.cron || "unknown"
+    });
     ctx.waitUntil(
       (async () => {
         try {
-          console.log("[Cron] Starting XunjiQueue processing at", new Date().toISOString());
           const res = await processQueueInternal(env);
-          console.log("[Cron] XunjiQueue processing finished:", JSON.stringify(res));
+          logInfo("cron_finished", res);
         } catch (cronErr) {
-          console.error("[Cron] XunjiQueue processing failed:", cronErr);
+          logError("cron_failed", { error: getErrorMessage(cronErr) });
         }
       })()
     );
@@ -260,13 +263,24 @@ async function processQueueInternal(env) {
   const gasUrl = (env.GAS_WEB_APP_URL || DEFAULT_GAS_URL).trim();
   const fetchUrl = `${gasUrl}?action=queue_pending&limit=5`;
   const gasRes = await fetch(fetchUrl, { method: "GET" });
-  if (!gasRes.ok) throw new Error(`Failed to read queue from GAS (${gasRes.status})`);
-  const gasData = await gasRes.json();
-  if (!gasData || !gasData.ok) throw new Error(`GAS returned error: ${gasData?.error || "Unknown"}`);
+  logInfo("queue_pending_response", { httpStatus: gasRes.status, httpOk: gasRes.ok });
 
-  const pendingItems = gasData.items || [];
+  let gasData;
+  try {
+    gasData = await gasRes.json();
+  } catch {
+    throw new Error(`Failed to parse queue_pending response from GAS (${gasRes.status})`);
+  }
+  if (!gasRes.ok) throw new Error(`Failed to read queue from GAS (${gasRes.status})`);
+  if (!gasData || !gasData.ok) throw new Error(`GAS queue_pending returned error: ${gasData?.error || "Unknown"}`);
+  if (!Array.isArray(gasData.items)) throw new Error("GAS queue_pending returned invalid items format");
+
+  const pendingItems = gasData.items;
+  logInfo("queue_pending_items", { count: pendingItems.length });
   if (pendingItems.length === 0) {
-    return { processed: 0, successCount: 0, errorCount: 0, message: "No pending tasks found in XunjiQueue" };
+    const result = { processed: 0, successCount: 0, errorCount: 0, message: "No pending tasks found in XunjiQueue" };
+    logInfo("queue_processing_summary", result);
+    return result;
   }
 
   let successCount = 0;
@@ -280,14 +294,8 @@ async function processQueueInternal(env) {
     const targetId = String(item.targetId || "").trim();
     const rawPayload = item.payloadJson;
     const isConfirmed = isTrue(item.confirmed);
-
-    try {
-      await fetch(gasUrl, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ action: "queue_processing", rowIndex })
-      });
-    } catch (e) {}
+    const logContext = { rowIndex, action, targetDate, targetId };
+    logInfo("queue_item_started", logContext);
 
     const nowIso = new Date().toISOString();
     let finalStatus = "error";
@@ -297,6 +305,8 @@ async function processQueueInternal(env) {
     let cursorVal = "";
 
     try {
+      await postQueueState(gasUrl, { action: "queue_processing", rowIndex }, "queue_processing_write", logContext);
+
       let payload = {};
       if (typeof rawPayload === "string" && rawPayload.trim()) {
         try { payload = JSON.parse(rawPayload); } catch (pe) { throw new Error(`Invalid PayloadJson: ${pe.message}`); }
@@ -315,6 +325,7 @@ async function processQueueInternal(env) {
             include_content: payload.include_content !== false
           })
         });
+        logUpstreamResponse(logContext, upstream);
         const resData = await upstream.json().catch(() => ({}));
         resultJson = JSON.stringify(resData);
         if (upstream.ok && resData.ok) {
@@ -339,6 +350,7 @@ async function processQueueInternal(env) {
               ...payload
             })
           });
+          logUpstreamResponse(logContext, upstream);
           const resData = await upstream.json().catch(() => ({}));
           resultJson = JSON.stringify(resData);
           if (upstream.ok && resData.ok && resData.data?.success !== false) {
@@ -363,6 +375,7 @@ async function processQueueInternal(env) {
             include_full_data: payload.include_full_data !== false
           })
         });
+        logUpstreamResponse(logContext, upstream);
         const resData = await upstream.json().catch(() => ({}));
         resultJson = JSON.stringify(resData);
         if (upstream.ok && (resData.ok === true || Array.isArray(resData.res?.trains))) {
@@ -395,6 +408,7 @@ async function processQueueInternal(env) {
               res: trains
             })
           });
+          logUpstreamResponse(logContext, upstream);
           const resData = await upstream.json().catch(() => ({}));
           resultJson = JSON.stringify(resData);
           if (upstream.ok && resData.ok !== false && resData.data?.success !== false) {
@@ -410,32 +424,83 @@ async function processQueueInternal(env) {
       }
     } catch (taskErr) {
       finalStatus = "error";
-      errorMessage = taskErr?.message || String(taskErr);
+      errorMessage = getErrorMessage(taskErr);
+      logError("queue_item_failed", { ...logContext, error: errorMessage });
     }
 
-    if (finalStatus === "success") successCount++; else errorCount++;
-
+    let writebackOk = false;
     try {
-      await fetch(gasUrl, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          action: "queue_update",
-          rowIndex,
-          status: finalStatus,
-          processedAt: nowIso,
-          resultJson,
-          errorMessage,
-          templateId,
-          cursor: cursorVal
-        })
-      });
-    } catch (updErr) {}
+      await postQueueState(gasUrl, {
+        action: "queue_update",
+        rowIndex,
+        status: finalStatus,
+        processedAt: nowIso,
+        resultJson,
+        errorMessage,
+        templateId,
+        cursor: cursorVal
+      }, "queue_result_write", logContext);
+      writebackOk = true;
+    } catch (updErr) {
+      logError("queue_result_write_failed", { ...logContext, error: getErrorMessage(updErr) });
+    }
 
-    processResults.push({ rowIndex, action, status: finalStatus });
+    if (finalStatus === "success" && writebackOk) successCount++; else errorCount++;
+    processResults.push({ rowIndex, action, status: finalStatus, writebackOk });
   }
 
-  return { processed: pendingItems.length, successCount, errorCount, results: processResults };
+  const result = { processed: pendingItems.length, successCount, errorCount, results: processResults };
+  logInfo("queue_processing_summary", result);
+  return result;
+}
+
+async function postQueueState(gasUrl, payload, event, context) {
+  const response = await fetch(gasUrl, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload)
+  });
+
+  let data;
+  try {
+    data = await response.json();
+  } catch {
+    data = null;
+  }
+
+  const result = {
+    ...context,
+    httpStatus: response.status,
+    httpOk: response.ok,
+    gasOk: data?.ok === true,
+    status: data?.status || ""
+  };
+  logInfo(event, result);
+
+  if (!response.ok || data?.ok !== true) {
+    throw new Error(`${payload.action} write failed (${response.status}): ${data?.error || "Invalid GAS response"}`);
+  }
+  return data;
+}
+
+function logUpstreamResponse(context, response) {
+  logInfo("xunji_upstream_response", {
+    ...context,
+    httpStatus: response.status,
+    httpOk: response.ok
+  });
+}
+
+function logInfo(event, details = {}) {
+  console.log(JSON.stringify({ event, ...details }));
+}
+
+function logError(event, details = {}) {
+  console.error(JSON.stringify({ event, ...details }));
+}
+
+function getErrorMessage(error) {
+  return error?.message || String(error);
 }
 
 function isTrue(val) {
