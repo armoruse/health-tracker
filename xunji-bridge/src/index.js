@@ -1,5 +1,5 @@
 /**
- * BODY × 訓記 Bridge v2.5.0 (Authenticated ChatGPT conversation API)
+ * BODY × 訓記 Bridge v2.5.1 (ChatGPT Actions-compatible OpenAPI)
  */
 
 const DEFAULT_GAS_URL = "https://script.google.com/macros/s/AKfycbyygSNrQ5YbEjHIEQq8kIR2UQVepnTKBj4VIcNTkgcwX6ioaAy7cpL7V29IGJtOQ4ui/exec";
@@ -60,7 +60,7 @@ export default {
         return json({
           success: true,
           service: "BODY × 訓記 Bridge v2",
-          version: "2.5.0",
+          version: "2.5.1",
           modules: {
             training: { read: "POST /training/read", write: "POST /training/write" },
             movements: {
@@ -580,22 +580,26 @@ async function secretsEqual(provided, expected) {
 }
 
 function buildOpenApiSpec(origin) {
-  const successResponse = {
-    description: "Bridge response",
-    content: { "application/json": { schema: { type: "object", additionalProperties: true } } }
-  };
   const jsonRequest = schema => ({
     required: true,
     content: { "application/json": { schema } }
   });
+  const responseRef = (description, schemaName) => ({
+    description,
+    content: {
+      "application/json": {
+        schema: { $ref: `#/components/schemas/${schemaName}` }
+      }
+    }
+  });
 
   return {
-    openapi: "3.1.0",
+    openapi: "3.0.3",
     info: {
       title: "BODY Xunji Conversation API",
-      version: "2.5.0",
+      version: "2.5.1",
       description: "Authenticated read and explicitly confirmed write access to the user's Xunji training data.",
-      license: { name: "Private use only", identifier: "LicenseRef-Private" }
+      license: { name: "Private use only", url: `${origin}/privacy` }
     },
     servers: [{ url: origin }],
     paths: {
@@ -604,8 +608,11 @@ function buildOpenApiSpec(origin) {
           operationId: "listMovements",
           summary: "List canonical Xunji movements before drafting training changes",
           security: [{ bearerAuth: [] }],
-          requestBody: jsonRequest({ type: "object", additionalProperties: true }),
-          responses: { "200": successResponse, "401": successResponse }
+          requestBody: jsonRequest({ $ref: "#/components/schemas/MovementCatalogRequest" }),
+          responses: {
+            "200": responseRef("Movement catalog response", "BridgeResponse"),
+            "401": responseRef("Unauthorized", "ErrorResponse")
+          }
         }
       },
       "/conversation/training/read": {
@@ -613,16 +620,12 @@ function buildOpenApiSpec(origin) {
           operationId: "readTraining",
           summary: "Read training records for one explicit Asia/Taipei calendar date",
           security: [{ bearerAuth: [] }],
-          requestBody: jsonRequest({
-            type: "object",
-            required: ["datestr"],
-            properties: {
-              datestr: { type: "string", pattern: "^\\d{4}-\\d{2}-\\d{2}$", description: "YYYY-MM-DD in Asia/Taipei" },
-              include_full_data: { type: "boolean", default: true }
-            },
-            additionalProperties: false
-          }),
-          responses: { "200": successResponse, "400": successResponse, "401": successResponse }
+          requestBody: jsonRequest({ $ref: "#/components/schemas/TrainingReadRequest" }),
+          responses: {
+            "200": responseRef("Training read response", "BridgeResponse"),
+            "400": responseRef("Invalid request", "ErrorResponse"),
+            "401": responseRef("Unauthorized", "ErrorResponse")
+          }
         }
       },
       "/conversation/training/write": {
@@ -630,19 +633,12 @@ function buildOpenApiSpec(origin) {
           operationId: "writeTraining",
           summary: "Write training only after the user explicitly confirms the exact change in the current conversation turn",
           security: [{ bearerAuth: [] }],
-          requestBody: jsonRequest({
-            type: "object",
-            required: ["confirmed", "client_request_id", "res"],
-            properties: {
-              confirmed: { type: "boolean", const: true },
-              client_request_id: { type: "string", minLength: 8, description: "Stable ID reused for retries of this exact write" },
-              dry_run: { type: "boolean", default: false },
-              include_full_data: { type: "boolean", default: true },
-              res: { type: "array", minItems: 1, items: { type: "object", additionalProperties: true } }
-            },
-            additionalProperties: false
-          }),
-          responses: { "200": successResponse, "400": successResponse, "401": successResponse }
+          requestBody: jsonRequest({ $ref: "#/components/schemas/TrainingWriteRequest" }),
+          responses: {
+            "200": responseRef("Training write response", "BridgeResponse"),
+            "400": responseRef("Confirmation or request validation failed", "ErrorResponse"),
+            "401": responseRef("Unauthorized", "ErrorResponse")
+          }
         }
       },
       "/conversation/templates/sync": {
@@ -650,15 +646,11 @@ function buildOpenApiSpec(origin) {
           operationId: "readTemplates",
           summary: "Read current Xunji templates and revisions",
           security: [{ bearerAuth: [] }],
-          requestBody: jsonRequest({
-            type: "object",
-            properties: {
-              cursor: { type: "integer", minimum: 0, default: 0 },
-              include_content: { type: "boolean", default: true }
-            },
-            additionalProperties: false
-          }),
-          responses: { "200": successResponse, "401": successResponse }
+          requestBody: jsonRequest({ $ref: "#/components/schemas/TemplateSyncRequest" }),
+          responses: {
+            "200": responseRef("Template sync response", "BridgeResponse"),
+            "401": responseRef("Unauthorized", "ErrorResponse")
+          }
         }
       },
       "/conversation/templates/mutate": {
@@ -666,25 +658,278 @@ function buildOpenApiSpec(origin) {
           operationId: "modifyTemplates",
           summary: "Modify templates only after the user explicitly confirms the exact change in the current conversation turn",
           security: [{ bearerAuth: [] }],
-          requestBody: jsonRequest({
-            type: "object",
-            required: ["confirmed", "mutation_id"],
-            properties: {
-              confirmed: { type: "boolean", const: true },
-              mutation_id: { type: "string", minLength: 8, description: "Stable ID reused for retries of this exact mutation" },
-              folder_update: { type: "object", additionalProperties: true },
-              upserts: { type: "array", items: { type: "object", additionalProperties: true } },
-              deletes: { type: "array", items: { type: "object", additionalProperties: true } }
-            },
-            additionalProperties: false
-          }),
-          responses: { "200": successResponse, "400": successResponse, "401": successResponse }
+          requestBody: jsonRequest({ $ref: "#/components/schemas/TemplateMutationRequest" }),
+          responses: {
+            "200": responseRef("Template mutation response", "BridgeResponse"),
+            "400": responseRef("Confirmation or request validation failed", "ErrorResponse"),
+            "401": responseRef("Unauthorized", "ErrorResponse")
+          }
         }
       }
     },
     components: {
       securitySchemes: {
         bearerAuth: { type: "http", scheme: "bearer" }
+      },
+      schemas: {
+        ErrorResponse: {
+          type: "object",
+          required: ["success", "error"],
+          properties: {
+            success: { type: "boolean", example: false },
+            error: { type: "string" }
+          },
+          additionalProperties: false
+        },
+        BridgeResponse: {
+          type: "object",
+          required: ["ok", "status", "data"],
+          properties: {
+            ok: { type: "boolean" },
+            status: { type: "integer", format: "int32" },
+            data: { $ref: "#/components/schemas/BridgeData" },
+            normalized: {
+              type: "array",
+              items: { $ref: "#/components/schemas/Movement" }
+            }
+          },
+          additionalProperties: true
+        },
+        BridgeData: {
+          type: "object",
+          properties: {
+            ok: { type: "boolean" },
+            success: { type: "boolean" },
+            error: { type: "string" },
+            message: { type: "string" },
+            current_revision: { type: "integer", format: "int64" },
+            next_cursor: { type: "integer", format: "int64" },
+            trains: {
+              type: "array",
+              items: { $ref: "#/components/schemas/TrainingDay" }
+            },
+            movements: {
+              type: "array",
+              items: { $ref: "#/components/schemas/Movement" }
+            },
+            changes: {
+              type: "array",
+              items: { $ref: "#/components/schemas/TemplateChange" }
+            },
+            applied: {
+              type: "array",
+              items: { $ref: "#/components/schemas/AppliedMutation" }
+            },
+            res: { $ref: "#/components/schemas/ResultData" },
+            data: { $ref: "#/components/schemas/ResultData" }
+          },
+          additionalProperties: true
+        },
+        ResultData: {
+          type: "object",
+          properties: {
+            success: { type: "boolean" },
+            message: { type: "string" },
+            trains: {
+              type: "array",
+              items: { $ref: "#/components/schemas/TrainingDay" }
+            },
+            movements: {
+              type: "array",
+              items: { $ref: "#/components/schemas/Movement" }
+            },
+            next_cursor: { type: "integer", format: "int64" }
+          },
+          additionalProperties: true
+        },
+        MovementCatalogRequest: {
+          type: "object",
+          properties: {
+            query: { type: "string", description: "Optional movement name filter" },
+            include_aliases: { type: "boolean", default: true }
+          },
+          additionalProperties: true
+        },
+        Movement: {
+          type: "object",
+          required: ["name"],
+          properties: {
+            identity: { type: "string", nullable: true },
+            identity_field: { type: "string", nullable: true },
+            native_identity_available: { type: "boolean" },
+            official_name: { type: "string" },
+            name: { type: "string" },
+            label: { type: "string" },
+            aliases: { type: "array", items: { type: "string" } },
+            equipment: { type: "string", nullable: true },
+            muscle: { type: "string", nullable: true },
+            category: { type: "string", nullable: true },
+            movement_type: { type: "string", nullable: true }
+          },
+          additionalProperties: true
+        },
+        TrainingReadRequest: {
+          type: "object",
+          required: ["datestr"],
+          properties: {
+            datestr: {
+              type: "string",
+              pattern: "^\\d{4}-\\d{2}-\\d{2}$",
+              description: "YYYY-MM-DD in Asia/Taipei"
+            },
+            include_full_data: { type: "boolean", default: true }
+          },
+          additionalProperties: false
+        },
+        TrainingWriteRequest: {
+          type: "object",
+          required: ["confirmed", "client_request_id", "res"],
+          properties: {
+            confirmed: { type: "boolean", enum: [true], description: "Must be true after explicit current-turn user confirmation" },
+            client_request_id: { type: "string", minLength: 8, description: "Stable ID reused for retries of this exact write" },
+            dry_run: { type: "boolean", default: false },
+            include_full_data: { type: "boolean", default: true },
+            res: {
+              type: "array",
+              minItems: 1,
+              items: { $ref: "#/components/schemas/TrainingDay" }
+            }
+          },
+          additionalProperties: false
+        },
+        TrainingDay: {
+          type: "object",
+          required: ["datestr"],
+          properties: {
+            datestr: { type: "string", pattern: "^\\d{4}-\\d{2}-\\d{2}$" },
+            title: { type: "string" },
+            movements: {
+              type: "array",
+              items: { $ref: "#/components/schemas/TrainingMovement" }
+            }
+          },
+          additionalProperties: true
+        },
+        TrainingMovement: {
+          type: "object",
+          required: ["name"],
+          properties: {
+            name: { type: "string" },
+            label: { type: "string" },
+            key: { type: "string" },
+            movement_key: { type: "string" },
+            sets: {
+              type: "array",
+              items: { $ref: "#/components/schemas/TrainingSet" }
+            }
+          },
+          additionalProperties: true
+        },
+        TrainingSet: {
+          type: "object",
+          properties: {
+            weight: { type: "string" },
+            weight_kg: { type: "number", format: "double" },
+            reps: { type: "string" },
+            unit: { type: "string" },
+            time: { type: "integer", format: "int32" },
+            duration_s: { type: "integer", format: "int32" },
+            comment: { type: "string" },
+            completed: { type: "boolean" }
+          },
+          additionalProperties: true
+        },
+        TemplateSyncRequest: {
+          type: "object",
+          properties: {
+            cursor: { type: "integer", minimum: 0, default: 0 },
+            include_content: { type: "boolean", default: true }
+          },
+          additionalProperties: false
+        },
+        TemplateMutationRequest: {
+          type: "object",
+          required: ["confirmed", "mutation_id"],
+          properties: {
+            confirmed: { type: "boolean", enum: [true], description: "Must be true after explicit current-turn user confirmation" },
+            mutation_id: { type: "string", minLength: 8, description: "Stable ID reused for retries of this exact mutation" },
+            folder_update: { $ref: "#/components/schemas/TemplateFolderUpdate" },
+            upserts: {
+              type: "array",
+              items: { $ref: "#/components/schemas/TemplateUpsert" }
+            },
+            deletes: {
+              type: "array",
+              items: { $ref: "#/components/schemas/TemplateDelete" }
+            }
+          },
+          additionalProperties: false
+        },
+        TemplateFolderUpdate: {
+          type: "object",
+          properties: {
+            folder_id: { type: "string" },
+            name: { type: "string" },
+            base_version: { type: "integer", format: "int64" }
+          },
+          additionalProperties: true
+        },
+        TemplateUpsert: {
+          type: "object",
+          required: ["template_id", "name"],
+          properties: {
+            template_id: { type: "string" },
+            base_version: { type: "integer", format: "int64" },
+            name: { type: "string" },
+            color: { type: "string" },
+            movements: {
+              type: "array",
+              items: { $ref: "#/components/schemas/TrainingMovement" }
+            },
+            movement: {
+              type: "array",
+              items: { $ref: "#/components/schemas/TrainingMovement" }
+            },
+            rules: { $ref: "#/components/schemas/TemplateRules" }
+          },
+          additionalProperties: true
+        },
+        TemplateRules: {
+          type: "object",
+          properties: {
+            note: { type: "string" },
+            description: { type: "string" }
+          },
+          additionalProperties: true
+        },
+        TemplateDelete: {
+          type: "object",
+          required: ["template_id"],
+          properties: {
+            template_id: { type: "string" },
+            base_version: { type: "integer", format: "int64" }
+          },
+          additionalProperties: true
+        },
+        TemplateChange: {
+          type: "object",
+          properties: {
+            entity_type: { type: "string" },
+            entity_id: { type: "string" },
+            operation: { type: "string" },
+            data: { $ref: "#/components/schemas/TemplateUpsert" }
+          },
+          additionalProperties: true
+        },
+        AppliedMutation: {
+          type: "object",
+          properties: {
+            template_id: { type: "string" },
+            operation: { type: "string" },
+            success: { type: "boolean" }
+          },
+          additionalProperties: true
+        }
       }
     }
   };

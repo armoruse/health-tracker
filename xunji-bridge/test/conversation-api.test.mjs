@@ -22,7 +22,7 @@ try {
 
   const schemaResponse = await worker.fetch(new Request("https://preview.bridge.test/openapi.json"), {}, {});
   const schema = await schemaResponse.json();
-  assert.equal(schema.openapi, "3.1.0");
+  assert.equal(schema.openapi, "3.0.3");
   assert.equal(schema.servers[0].url, "https://preview.bridge.test");
   assert.equal(schema.paths["/conversation/training/read"].post.operationId, "readTraining");
   assert.equal(schema.paths["/conversation/training/write"].post.operationId, "writeTraining");
