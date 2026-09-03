@@ -1,5 +1,5 @@
 /**
- * BODY × 訓記 Bridge v2.4.1 (Queue observability and writeback validation)
+ * BODY × 訓記 Bridge v2.5.0 (Authenticated ChatGPT conversation API)
  */
 
 const DEFAULT_GAS_URL = "https://script.google.com/macros/s/AKfycbyygSNrQ5YbEjHIEQq8kIR2UQVepnTKBj4VIcNTkgcwX6ioaAy7cpL7V29IGJtOQ4ui/exec";
@@ -30,12 +30,37 @@ export default {
     }
 
     try {
+      if (url.pathname === "/openapi.json" && request.method === "GET") {
+        return json(buildOpenApiSpec(url.origin));
+      }
+
+      if (url.pathname === "/privacy" && request.method === "GET") {
+        return new Response(
+          "BODY × 訓記 Bridge relays authenticated requests to the user's Xunji account. " +
+          "It does not place API keys or complete private health payloads in application logs.",
+          { status: 200, headers: { "Content-Type": "text/plain; charset=utf-8", ...corsHeaders } }
+        );
+      }
+
+      const conversationOperation = getConversationOperation(url.pathname);
+      if (conversationOperation) {
+        if (!env.BODY_QUEUE_SECRET) {
+          return json({ success: false, error: "Conversation API is not configured" }, 503);
+        }
+        const authHeader = request.headers.get("Authorization") || "";
+        const token = authHeader.replace(/^Bearer\s+/i, "").trim();
+        if (!token || !(await secretsEqual(token, env.BODY_QUEUE_SECRET))) {
+          return json({ success: false, error: "Unauthorized" }, 401);
+        }
+        logInfo("conversation_request", { operation: conversationOperation });
+      }
+
       // 1. Health Check
       if (url.pathname === "/" && request.method === "GET") {
         return json({
           success: true,
           service: "BODY × 訓記 Bridge v2",
-          version: "2.4.1",
+          version: "2.5.0",
           modules: {
             training: { read: "POST /training/read", write: "POST /training/write" },
             movements: {
@@ -52,6 +77,12 @@ export default {
             queue: {
               process: "POST /queue/process (or /process)",
               actions: ["TEMPLATE_SYNC", "TEMPLATE_MUTATE", "READ_TRAINING", "WRITE_TRAINING"]
+            },
+            conversation: {
+              schema: "GET /openapi.json",
+              auth: "Bearer BODY_QUEUE_SECRET",
+              read: "POST /conversation/training/read",
+              write: "POST /conversation/training/write"
             }
           }
         });
@@ -62,7 +93,7 @@ export default {
         if (env.BODY_QUEUE_SECRET) {
           const authHeader = request.headers.get("Authorization") || "";
           const token = authHeader.replace(/^Bearer\s+/i, "").trim();
-          if (token !== env.BODY_QUEUE_SECRET) {
+          if (!token || !(await secretsEqual(token, env.BODY_QUEUE_SECRET))) {
             return json({ success: false, error: "Unauthorized: Invalid BODY_QUEUE_SECRET" }, 401);
           }
         }
@@ -71,7 +102,7 @@ export default {
       }
 
       // 3. Training Endpoints
-      if (["/movements/catalog", "/movement/catalog", "/xunji/movements"].includes(url.pathname) && request.method === "POST") {
+      if (["/movements/catalog", "/movement/catalog", "/xunji/movements", "/conversation/movements/catalog"].includes(url.pathname) && request.method === "POST") {
         const apiKey = env.XUNJI_TRAIN_API_KEY || env.XUNJI_API_KEY;
         if (!apiKey) return json({ success: false, error: "Missing Cloudflare Secret: XUNJI_TRAIN_API_KEY" }, 500);
 
@@ -88,6 +119,7 @@ export default {
         const resText = await upstream.text();
         let resData;
         try { resData = JSON.parse(resText); } catch { resData = { raw: resText }; }
+        if (conversationOperation) logInfo("conversation_response", { operation: conversationOperation, httpStatus: upstream.status, httpOk: upstream.ok });
         return json({
           ok: upstream.ok,
           status: upstream.status,
@@ -96,11 +128,14 @@ export default {
         }, upstream.ok ? 200 : upstream.status);
       }
 
-      if ((url.pathname === "/training/read" || url.pathname === "/xunji/read") && request.method === "POST") {
+      if (["/training/read", "/xunji/read", "/conversation/training/read"].includes(url.pathname) && request.method === "POST") {
         const apiKey = env.XUNJI_TRAIN_API_KEY || env.XUNJI_API_KEY;
         if (!apiKey) return json({ success: false, error: "Missing Cloudflare Secret: XUNJI_TRAIN_API_KEY" }, 500);
 
         const body = await request.json();
+        if (conversationOperation && !/^\d{4}-\d{2}-\d{2}$/.test(String(body.datestr || ""))) {
+          return json({ success: false, error: "datestr is required in YYYY-MM-DD format" }, 400);
+        }
         const payload = {
           schema_version: "train_open_api_v2",
           datestr: body.datestr || body.date || getTodayDatestr(),
@@ -116,20 +151,31 @@ export default {
         const resText = await upstream.text();
         let resData;
         try { resData = JSON.parse(resText); } catch { resData = { raw: resText }; }
+        if (conversationOperation) logInfo("conversation_response", { operation: conversationOperation, httpStatus: upstream.status, httpOk: upstream.ok });
         return json({ ok: upstream.ok, status: upstream.status, data: resData }, upstream.ok ? 200 : upstream.status);
       }
 
-      if ((url.pathname === "/training/write" || url.pathname === "/xunji/write") && request.method === "POST") {
+      if (["/training/write", "/xunji/write", "/conversation/training/write"].includes(url.pathname) && request.method === "POST") {
         const apiKey = env.XUNJI_TRAIN_API_KEY || env.XUNJI_API_KEY;
         if (!apiKey) return json({ success: false, error: "Missing Cloudflare Secret: XUNJI_TRAIN_API_KEY" }, 500);
 
         const body = await request.json();
+        if (conversationOperation && body.confirmed !== true) {
+          return json({ success: false, error: "Explicit current-turn confirmation is required" }, 400);
+        }
+        if (conversationOperation && !String(body.client_request_id || "").trim()) {
+          return json({ success: false, error: "client_request_id is required for idempotent writes" }, 400);
+        }
+        const trains = body.res || body.trains || [];
+        if (!Array.isArray(trains) || trains.length === 0) {
+          return json({ success: false, error: "A non-empty res or trains array is required" }, 400);
+        }
         const payload = {
           schema_version: "train_open_api_v2",
           client_request_id: body.client_request_id || crypto.randomUUID(),
           dry_run: body.dry_run === true,
           include_full_data: body.include_full_data !== false,
-          res: body.res || body.trains || []
+          res: trains
         };
 
         const upstream = await fetch("https://trains.xunjiapp.cn/api_upsert_trains_for_llm_v2", {
@@ -141,11 +187,12 @@ export default {
         const resText = await upstream.text();
         let resData;
         try { resData = JSON.parse(resText); } catch { resData = { raw: resText }; }
+        if (conversationOperation) logInfo("conversation_response", { operation: conversationOperation, httpStatus: upstream.status, httpOk: upstream.ok });
         return json({ ok: upstream.ok, status: upstream.status, data: resData }, upstream.ok ? 200 : upstream.status);
       }
 
       // 4. Template Endpoints (Fixed routes)
-      if (url.pathname === "/templates/sync" && request.method === "POST") {
+      if (["/templates/sync", "/conversation/templates/sync"].includes(url.pathname) && request.method === "POST") {
         const apiKey = env.XUNJI_TEMPLATE_API_KEY || env.XUNJI_TRAIN_API_KEY || env.XUNJI_API_KEY;
         if (!apiKey) return json({ success: false, error: "Missing Cloudflare Secret: XUNJI_TEMPLATE_API_KEY" }, 500);
 
@@ -165,16 +212,20 @@ export default {
         const resText = await upstream.text();
         let resData;
         try { resData = JSON.parse(resText); } catch { resData = { raw: resText }; }
+        if (conversationOperation) logInfo("conversation_response", { operation: conversationOperation, httpStatus: upstream.status, httpOk: upstream.ok });
         return json({ ok: upstream.ok, status: upstream.status, data: resData }, upstream.ok ? 200 : upstream.status);
       }
 
-      if (url.pathname === "/templates/mutate" && request.method === "POST") {
+      if (["/templates/mutate", "/conversation/templates/mutate"].includes(url.pathname) && request.method === "POST") {
         const apiKey = env.XUNJI_TEMPLATE_API_KEY || env.XUNJI_TRAIN_API_KEY || env.XUNJI_API_KEY;
         if (!apiKey) return json({ success: false, error: "Missing Cloudflare Secret: XUNJI_TEMPLATE_API_KEY" }, 500);
 
         const body = await request.json();
         if (body.confirmed !== true) {
           return json({ success: false, error: "confirmed: true is required for mutate" }, 400);
+        }
+        if (conversationOperation && !String(body.mutation_id || "").trim()) {
+          return json({ success: false, error: "mutation_id is required for idempotent mutations" }, 400);
         }
 
         const payload = {
@@ -194,6 +245,7 @@ export default {
         const resText = await upstream.text();
         let resData;
         try { resData = JSON.parse(resText); } catch { resData = { raw: resText }; }
+        if (conversationOperation) logInfo("conversation_response", { operation: conversationOperation, httpStatus: upstream.status, httpOk: upstream.ok });
         return json({ ok: upstream.ok, status: upstream.status, data: resData }, upstream.ok ? 200 : upstream.status);
       }
 
@@ -501,6 +553,141 @@ function logError(event, details = {}) {
 
 function getErrorMessage(error) {
   return error?.message || String(error);
+}
+
+function getConversationOperation(pathname) {
+  const routes = {
+    "/conversation/movements/catalog": "listMovements",
+    "/conversation/training/read": "readTraining",
+    "/conversation/training/write": "writeTraining",
+    "/conversation/templates/sync": "readTemplates",
+    "/conversation/templates/mutate": "modifyTemplates"
+  };
+  return routes[pathname] || "";
+}
+
+async function secretsEqual(provided, expected) {
+  const encoder = new TextEncoder();
+  const [providedHash, expectedHash] = await Promise.all([
+    crypto.subtle.digest("SHA-256", encoder.encode(provided)),
+    crypto.subtle.digest("SHA-256", encoder.encode(expected))
+  ]);
+  const left = new Uint8Array(providedHash);
+  const right = new Uint8Array(expectedHash);
+  let difference = 0;
+  for (let index = 0; index < left.length; index++) difference |= left[index] ^ right[index];
+  return difference === 0;
+}
+
+function buildOpenApiSpec(origin) {
+  const successResponse = {
+    description: "Bridge response",
+    content: { "application/json": { schema: { type: "object", additionalProperties: true } } }
+  };
+  const jsonRequest = schema => ({
+    required: true,
+    content: { "application/json": { schema } }
+  });
+
+  return {
+    openapi: "3.1.0",
+    info: {
+      title: "BODY Xunji Conversation API",
+      version: "2.5.0",
+      description: "Authenticated read and explicitly confirmed write access to the user's Xunji training data.",
+      license: { name: "Private use only", identifier: "LicenseRef-Private" }
+    },
+    servers: [{ url: origin }],
+    paths: {
+      "/conversation/movements/catalog": {
+        post: {
+          operationId: "listMovements",
+          summary: "List canonical Xunji movements before drafting training changes",
+          security: [{ bearerAuth: [] }],
+          requestBody: jsonRequest({ type: "object", additionalProperties: true }),
+          responses: { "200": successResponse, "401": successResponse }
+        }
+      },
+      "/conversation/training/read": {
+        post: {
+          operationId: "readTraining",
+          summary: "Read training records for one explicit Asia/Taipei calendar date",
+          security: [{ bearerAuth: [] }],
+          requestBody: jsonRequest({
+            type: "object",
+            required: ["datestr"],
+            properties: {
+              datestr: { type: "string", pattern: "^\\d{4}-\\d{2}-\\d{2}$", description: "YYYY-MM-DD in Asia/Taipei" },
+              include_full_data: { type: "boolean", default: true }
+            },
+            additionalProperties: false
+          }),
+          responses: { "200": successResponse, "400": successResponse, "401": successResponse }
+        }
+      },
+      "/conversation/training/write": {
+        post: {
+          operationId: "writeTraining",
+          summary: "Write training only after the user explicitly confirms the exact change in the current conversation turn",
+          security: [{ bearerAuth: [] }],
+          requestBody: jsonRequest({
+            type: "object",
+            required: ["confirmed", "client_request_id", "res"],
+            properties: {
+              confirmed: { type: "boolean", const: true },
+              client_request_id: { type: "string", minLength: 8, description: "Stable ID reused for retries of this exact write" },
+              dry_run: { type: "boolean", default: false },
+              include_full_data: { type: "boolean", default: true },
+              res: { type: "array", minItems: 1, items: { type: "object", additionalProperties: true } }
+            },
+            additionalProperties: false
+          }),
+          responses: { "200": successResponse, "400": successResponse, "401": successResponse }
+        }
+      },
+      "/conversation/templates/sync": {
+        post: {
+          operationId: "readTemplates",
+          summary: "Read current Xunji templates and revisions",
+          security: [{ bearerAuth: [] }],
+          requestBody: jsonRequest({
+            type: "object",
+            properties: {
+              cursor: { type: "integer", minimum: 0, default: 0 },
+              include_content: { type: "boolean", default: true }
+            },
+            additionalProperties: false
+          }),
+          responses: { "200": successResponse, "401": successResponse }
+        }
+      },
+      "/conversation/templates/mutate": {
+        post: {
+          operationId: "modifyTemplates",
+          summary: "Modify templates only after the user explicitly confirms the exact change in the current conversation turn",
+          security: [{ bearerAuth: [] }],
+          requestBody: jsonRequest({
+            type: "object",
+            required: ["confirmed", "mutation_id"],
+            properties: {
+              confirmed: { type: "boolean", const: true },
+              mutation_id: { type: "string", minLength: 8, description: "Stable ID reused for retries of this exact mutation" },
+              folder_update: { type: "object", additionalProperties: true },
+              upserts: { type: "array", items: { type: "object", additionalProperties: true } },
+              deletes: { type: "array", items: { type: "object", additionalProperties: true } }
+            },
+            additionalProperties: false
+          }),
+          responses: { "200": successResponse, "400": successResponse, "401": successResponse }
+        }
+      }
+    },
+    components: {
+      securitySchemes: {
+        bearerAuth: { type: "http", scheme: "bearer" }
+      }
+    }
+  };
 }
 
 function isTrue(val) {
