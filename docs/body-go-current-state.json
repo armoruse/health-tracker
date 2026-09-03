@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "verifiedAt": "2026-08-30T15:07:31+08:00",
+  "verifiedAt": "2026-09-03T15:05:00+08:00",
   "timezone": "Asia/Taipei",
   "repository": "armoruse/health-tracker",
   "cloudMirror": {
@@ -23,12 +23,18 @@
   "xunjiBridge": {
     "source": "xunji-bridge/",
     "productionUrl": "https://body-xunji-bridge.armoruse.workers.dev/",
-    "productionVersion": "2.1.1",
+    "productionVersion": "2.4.0",
     "previewUrl": "https://preview-body-xunji-bridge.armoruse.workers.dev/",
-    "previewVersion": "2.2.0",
+    "previewVersion": "2.5.0",
     "templateRevision": 28,
     "cloudflareSecretNamesVerified": true,
-    "secretValuesStoredInGit": false
+    "secretValuesStoredInGit": false,
+    "conversationApi": {
+      "previewReady": true,
+      "productionDeployed": false,
+      "openApiPath": "/openapi.json",
+      "authSecretName": "BODY_QUEUE_SECRET"
+    }
   },
   "appsScript": {
     "source": "apps-script/",
@@ -37,12 +43,11 @@
     "enqueueEndpointAvailable": false
   },
   "mobileTemplateEditing": {
-    "status": "not_connected",
+    "status": "preview_backend_ready_action_not_connected",
     "tokenValid": true,
     "missingCapabilities": [
-      "authenticated mobile action or connector",
-      "authenticated queue enqueue endpoint",
-      "preview-to-production approval for bridge 2.2.0"
+      "configure the ChatGPT Action with the Preview OpenAPI schema and Bearer key",
+      "preview-to-production approval for bridge 2.5.0"
     ]
   },
   "activeTemplates": [

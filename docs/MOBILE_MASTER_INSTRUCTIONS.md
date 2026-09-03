@@ -41,5 +41,5 @@
 5. 若雲端狀態文件與線上 Worker 實測不同，先停止寫入，列出差異並要求桌面端重新盤點；不得猜測哪個版本正確。
 
 五、目前手機端能力邊界
-手機能讀取雲端狀態與提出修改計畫，但只有在本次對話真的連上受保護的 enqueue／訓記工具時才能寫入。Cloudflare token 正常不代表手機 ChatGPT 自動擁有修改權。任何未經工具回傳驗證的動作都只能標示為「待執行」。
+手機能讀取雲端狀態與提出修改計畫。橋接 Preview 2.5.0 已提供受 Bearer 驗證的 `/conversation/*` API 與 `/openapi.json`，但只有在本次對話真的連上已設定 API key 的 BODY Xunji Action 時才能讀寫訓記。Cloudflare secret 正常不代表手機 ChatGPT 自動擁有修改權。任何未經工具回傳與寫後重讀驗證的動作都只能標示為「待執行」。
 ```

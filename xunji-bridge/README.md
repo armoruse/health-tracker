@@ -6,6 +6,7 @@ This is the canonical source for the `body-xunji-bridge` Cloudflare Worker.
 - Google Apps Script: BODY `V21.1-fast`
 - Queue sheet: `XunjiQueue`
 - Scheduled processing: every five minutes
+- Authenticated ChatGPT Action schema: `GET /openapi.json`
 - Official movement-name catalog: `POST /movements/catalog`
 - Catalog aliases: `POST /movement/catalog`, `POST /xunji/movements`
 
@@ -37,4 +38,4 @@ npx wrangler versions upload --preview-alias preview
 
 Do not run `wrangler deploy` for this project unless production publication is explicitly approved.
 
-Secrets are managed in Cloudflare and must not be committed. The Worker currently expects the existing `XUNJI_*_API_KEY` secrets. `BODY_QUEUE_SECRET` is optional and protects the manual `/queue/process` endpoint when configured.
+Secrets are managed in Cloudflare and must not be committed. The Worker expects the existing `XUNJI_*_API_KEY` secrets plus `BODY_QUEUE_SECRET`. The latter protects both the manual `/queue/process` endpoint and all `/conversation/*` ChatGPT Action endpoints.

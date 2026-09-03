@@ -1,6 +1,6 @@
 # BODY GO! 目前雲端狀態
 
-最後驗證：2026-08-30（Asia/Taipei）
+最後驗證：2026-09-03（Asia/Taipei）
 
 這份文件是不同電腦、手機與新對話接手 BODY GO! 時的第一入口。GitHub 是程式與更新紀錄的唯一來源；Google Sheet 是健康、飲食、體態與訓練資料的正式資料庫；Cloudflare 保存 Worker 與加密 API secrets。
 
@@ -11,7 +11,7 @@
 | 元件 | 唯一原始碼 | Production | Preview | 已驗證版本 |
 | --- | --- | --- | --- | --- |
 | BODY GO! 網站 | `cloudflare-worker/` | `https://body-go-app.armoruse.workers.dev/` | `https://preview-body-go-app.armoruse.workers.dev/` | Production V25.6；Preview V25.8 |
-| BODY × 訓記橋接 | `xunji-bridge/` | `https://body-xunji-bridge.armoruse.workers.dev/` | `https://preview-body-xunji-bridge.armoruse.workers.dev/` | Production 2.1.1；Preview 2.2.0 |
+| BODY × 訓記橋接 | `xunji-bridge/` | `https://body-xunji-bridge.armoruse.workers.dev/` | `https://preview-body-xunji-bridge.armoruse.workers.dev/` | Production 2.4.0；Preview 2.5.0 |
 | Google Sheet API | `apps-script/` | 現有 Apps Script Web App | 無獨立 Preview | V21.1-fast |
 | 訓記任務佇列 | Google Sheet `XunjiQueue` | 由橋接 Worker 每 5 分鐘處理 | Preview 可唯讀驗證 | 架構保留 |
 
@@ -21,24 +21,24 @@
 
 訓記 token 沒有失效。2026-08-30 已從 Production 2.1.1 與 Preview 2.2.0 成功同步訓記模板，Cloudflare 上六個 `XUNJI_*_API_KEY` secret 名稱也都存在。
 
-目前手機無法修改的真正原因有四個：
+目前 Preview backend 已提供受 Bearer 驗證的 ChatGPT Action API 與 OpenAPI schema，但手機／ChatGPT 對話仍需完成 Action UI 綁定。尚未完成的項目為：
 
-1. 手機上的 ChatGPT 對話沒有綁定可呼叫訓記橋接的 Action 或 Connector；一般對話文字不會自動取得 HTTP 工具。
+1. 手機上的 ChatGPT 對話尚未綁定可呼叫訓記橋接的 Action；一般對話文字不會自動取得 HTTP 工具。
 2. 訓記 API credentials 只存在 Cloudflare 的加密 secrets，不會同步到手機、對話內容或 GitHub。
-3. Apps Script V21.1-fast 目前有 `queue_pending`、`queue_processing`、`queue_update`，但沒有供手機安全送出任務的 `queue_enqueue` 入口。
-4. 最新 Queue 寫入能力在橋接 Preview 2.2.0；Production 仍為 2.1.1。手機若只連 Production，就不會取得最新 Queue 流程。
+3. Preview 2.5.0 的 `/conversation/*` 端點與 `/openapi.json` 已完成；Production 仍為 2.4.0，尚未發布 conversation API。
+4. Apps Script V21.1-fast 仍沒有 `queue_enqueue`；目前對話整合採 bridge 的受保護同步 Action 端點，既有 XunjiQueue／Cron 架構維持不變。
 
 因此「電腦 Codex 可以改、手機 ChatGPT 不可以」是工具與授權入口不同，不是模板或 token 壞掉。
 
 ## 讓手機可安全修改所缺的串接
 
-手機端要正式可用，還需要完成以下一條受保護的路徑：
+手機端要正式可用，需完成以下受保護路徑：
 
-`手機 ChatGPT／BODY GO! → 已驗證的 enqueue 入口 → XunjiQueue → body-xunji-bridge → 訓記`
+`手機 ChatGPT 自訂 GPT Action → body-xunji-bridge /conversation/* → 訓記`
 
-enqueue 必須有身份驗證、變更摘要、`confirmed: true`、穩定 request ID 與結果回寫。完成 Preview 驗證前不得發布 Production，也不能把 Cloudflare secret 放到手機前端。
+Action 使用 Cloudflare 加密保存的 `BODY_QUEUE_SECRET` 做 Bearer 驗證；寫入必須有變更摘要、`confirmed: true`、穩定 request ID 與寫後重讀驗證。secret 只能填入 ChatGPT Action 的安全認證欄位，不可放在對話、指示或 Git。正式使用前仍需取得 Production 發布授權。
 
-目前手機修改狀態：**尚未串接完成**。不要在其他裝置誤判為已可直接修改。
+目前手機修改狀態：**Preview backend 已完成，ChatGPT Action UI 尚未綁定，Production 尚未發布**。
 
 ## 目前訓記模板
 
@@ -59,7 +59,7 @@ enqueue 必須有身份驗證、變更摘要、`confirmed: true`、穩定 reques
 
 - BODY GO! Preview 已到 V25.8：目標體態正／側／背統一為脖子到膝蓋比例，並保留動態目標圖片同步與 cache busting。
 - BODY GO! Production 目前為 V25.6；V25.8 尚未發布 Production。
-- 訓記橋接 Preview 2.2.0 已補齊 Queue training writes 與 canonical source；Production 仍為 2.1.1。
+- 訓記橋接 Preview 2.5.0 已提供受保護的 ChatGPT conversation API、OpenAPI schema、確認閘門與穩定 request ID；Production 仍為 2.4.0。
 - Apps Script 維持 V21.1-fast 與 `XunjiQueue`，沒有換架構。
 - 訓記四個重訓模組已加入排球相關調整；另有居家恢復與睡前拉伸模板。
 
